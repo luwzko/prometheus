@@ -1,0 +1,30 @@
+{
+    "model": "{model_name}",
+    "messages": [
+        {"role": "system", "content": "{system_prompt}"},
+        {"role": "user", "content": "{user_input}"}
+    ],
+    "max_tokens": 4096,
+    "temperature": 0.2,
+    "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+            "name":"response",
+            "strict": true,
+            "schema": {
+                "type":"object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Text response of the model, certain comments, explanations or greetings, whatever needs to be said."
+                    },
+                    "response": {
+                        "type": "string",
+                        "description": "This is a general action output in the form of text, this is actual output of the model action."
+                    }
+                },
+                "required": ["text", "response"]
+            }
+        }
+    }
+}

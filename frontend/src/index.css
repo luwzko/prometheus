@@ -1,0 +1,318 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System - Typography & Spacing */
+:root {
+  /* Color Palette - Subtle Accents */
+  --color-primary: 59 130 246; /* Soft blue for primary actions */
+  --color-primary-light: 147 197 253;
+  --color-success: 34 197 94; /* Green for success states */
+  --color-warning: 251 191 36; /* Amber for warnings */
+  --color-error: 239 68 68; /* Red for errors */
+  --color-accent: 139 92 246; /* Purple for accents */
+  
+  /* Typography Scale */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  
+  /* Spacing Scale */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
+}
+
+/* Typography Improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+p {
+  letter-spacing: -0.011em;
+  line-height: 1.6;
+}
+
+@layer utilities {
+  /* Premium glass effect - MORE TRANSPARENT */
+  .glass-premium {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(40px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+            0 8px 32px rgba(31, 38, 135, 0.2),
+            inset 0 1px 1px rgba(255, 255, 255, 0.4),
+            inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Stronger glass for navbar */
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(30px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Feature card glass - MORE TRANSPARENT */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(50px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(50px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.15),
+            inset 0 1px 1px rgba(255, 255, 255, 0.4),
+            inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Hover effects */
+  .glass-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+            0 30px 80px rgba(0, 0, 0, 0.2),
+            inset 0 1px 1px rgba(255, 255, 255, 0.5),
+            inset 0 -1px 1px rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.45) !important;
+  }
+
+  /* Color Accents - Subtle */
+  .accent-primary {
+    color: rgb(var(--color-primary));
+  }
+
+  .accent-primary-bg {
+    background-color: rgb(var(--color-primary));
+  }
+
+  .accent-success {
+    color: rgb(var(--color-success));
+  }
+
+  .accent-success-bg {
+    background-color: rgb(var(--color-success));
+  }
+
+  /* Active/Selected States */
+  .state-active {
+    background: rgba(107, 114, 128, 0.1) !important;
+    border-color: rgba(107, 114, 128, 0.3) !important;
+    color: rgb(55, 65, 81);
+  }
+
+  /* Status Indicators */
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-online {
+    background-color: rgb(var(--color-success));
+    box-shadow: 0 0 8px rgba(var(--color-success), 0.5);
+  }
+
+  .status-processing {
+    background-color: rgb(107, 114, 128);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Floating animation */
+@keyframes float-smooth {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.02);
+  }
+}
+
+.animate-float-smooth {
+  animation: float-smooth 8s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Hide scrollbar for tab bar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom scrollbar for chat area - subtle and glassmorphic */
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.chat-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Typography Utilities */
+.text-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.text-body {
+  font-family: var(--font-body);
+  letter-spacing: -0.011em;
+  line-height: 1.6;
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+
+/* Spacing Utilities */
+.space-section {
+  margin-bottom: var(--space-3xl);
+}
+
+.space-component {
+  margin-bottom: var(--space-xl);
+}
+
+/* Empty State Styling */
+.empty-state {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+  color: rgb(107, 114, 128);
+}
+
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-lg);
+  opacity: 0.4;
+}
+
+/* Loading States */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Enhanced glass for inputs and selects */
+.glass-input {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(100px) saturate(150%) brightness(1.05) !important;
+  -webkit-backdrop-filter: blur(100px) saturate(150%) brightness(1.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+          0 4px 16px rgba(0, 0, 0, 0.06),
+          inset 0 1px 1px rgba(255, 255, 255, 0.3),
+          inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.1),
+          inset 0 1px 1px rgba(255, 255, 255, 0.4),
+          inset 0 -1px 1px rgba(255, 255, 255, 0.25),
+          0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.glass-input:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow:
+          0 4px 18px rgba(0, 0, 0, 0.08),
+          inset 0 1px 1px rgba(255, 255, 255, 0.3),
+          inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Mesh Gradient Background - Futuristic */
+.mesh-gradient {
+  background: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.25) 0%, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.22) 0%, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.25) 0%, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(34, 211, 238, 0.22) 0%, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(8, 145, 178, 0.2) 0%, transparent 60%),
+    radial-gradient(at 25% 75%, rgba(59, 130, 246, 0.18) 0%, transparent 55%),
+    radial-gradient(at 75% 25%, rgba(6, 182, 212, 0.18) 0%, transparent 55%),
+    linear-gradient(135deg, rgba(249, 250, 251, 0.85) 0%, rgba(243, 244, 246, 0.9) 100%);
+  background-size: 100% 100%;
+  background-attachment: fixed;
+}

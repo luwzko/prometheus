@@ -1,0 +1,302 @@
+import { useState, useEffect } from "react";
+import { getAvailableActions } from "../services/api";
+
+export default function LeftPanel({ activePanel, setActivePanel }) {
+    const panels = [
+        { id: "config", label: "Config" },
+        { id: "actions", label: "Actions" },
+        { id: "history", label: "History" },
+    ];
+
+    return (
+        <div className="w-80 glass-premium flex flex-col shadow-xl">
+            {/* Tab Bar */}
+            <div className="flex border-b border-white/25 bg-gray-50/20 h-14">
+                {panels.map((panel) => (
+                    <button
+                        key={panel.id}
+                        onClick={() => setActivePanel(panel.id)}
+                        className={`flex-1 px-4 h-full text-xs font-semibold uppercase tracking-wider transition-all relative flex items-center justify-center ${
+                            activePanel === panel.id
+                                ? "text-gray-900 bg-gray-50/40"
+                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/20"
+                        }`}
+                    >
+                        {panel.label}
+                        {activePanel === panel.id && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {/* Panel Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+                {activePanel === "config" && <ConfigPanel />}
+                {activePanel === "actions" && <ActionsPanel />}
+                {activePanel === "history" && <HistoryPanel />}
+            </div>
+        </div>
+    );
+}
+
+function ConfigPanel() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Model</label>
+                <select className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all cursor-pointer appearance-none bg-no-repeat bg-right pr-10" style={{backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 0.5rem center", backgroundSize: "1.5em 1.5em"}}>
+                    <option>gpt-4</option>
+                    <option>gpt-3.5-turbo</option>
+                    <option>claude-3-opus</option>
+                    <option>claude-3-sonnet</option>
+                </select>
+            </div>
+
+            <div>
+                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Temperature</label>
+                <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    defaultValue="0.7"
+                    className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all"
+                />
+            </div>
+
+            <div>
+                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Max Tokens</label>
+                <input
+                    type="number"
+                    defaultValue="2000"
+                    className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all"
+                />
+            </div>
+
+            <div>
+                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Top P</label>
+                <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    defaultValue="1.0"
+                    className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all"
+                />
+            </div>
+        </div>
+    );
+}
+
+function ActionsPanel() {
+    const [actions, setActions] = useState([]);
+    const [expandedActions, setExpandedActions] = useState(new Set());
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadActions = async () => {
+            try {
+                const actionList = await getAvailableActions();
+                if (Array.isArray(actionList)) {
+                    // Handle both string arrays and object arrays
+                    const processedActions = actionList.map((action) => {
+                        if (typeof action === 'string') {
+                            return { name: action };
+                        } else if (action && typeof action === 'object' && action.name) {
+                            return { ...action };
+                        } else {
+                            console.warn('Unexpected action format:', action);
+                            return { name: String(action) };
+                        }
+                    });
+                    setActions(processedActions);
+                } else {
+                    setActions([]);
+                }
+                setError(null);
+            } catch (error) {
+                console.error('Error loading actions:', error);
+                setError('Unable to load actions. Backend may be offline.');
+                setActions([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        loadActions();
+    }, []);
+
+    const toggleExpand = (actionName) => {
+        setExpandedActions(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(actionName)) {
+                newSet.delete(actionName);
+            } else {
+                newSet.add(actionName);
+            }
+            return newSet;
+        });
+    };
+
+    if (isLoading) {
+        return <div className="text-sm text-gray-600">Loading actions...</div>;
+    }
+
+    if (error) {
+        return (
+            <div className="space-y-2">
+                <div className="text-sm text-red-600">{error}</div>
+                <div className="text-xs text-gray-500">Make sure the backend is running</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-3">
+            {actions.length === 0 ? (
+                <div className="text-sm text-gray-600">No actions available</div>
+            ) : (
+                actions.map((action, index) => {
+                    const isExpanded = expandedActions.has(action.name);
+                    const hasDetails = action.description || action.variable || action.arguments_sig;
+                    
+                    return (
+                        <div 
+                            key={action.name || `action-${index}`} 
+                            className="glass-card rounded-xl overflow-hidden transition-all"
+                        >
+                            {/* Header - Always visible */}
+                            <div 
+                                className="p-4 flex items-center justify-between cursor-pointer group hover:bg-gray-50/20 transition-colors"
+                                onClick={() => hasDetails && toggleExpand(action.name)}
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-semibold text-gray-900 truncate">
+                                        {action.name || 'Unknown Action'}
+                                    </div>
+                                    {action.description && !isExpanded && (
+                                        <div className="text-xs text-gray-600 mt-1 line-clamp-1">
+                                            {action.description}
+                                        </div>
+                                    )}
+                                </div>
+                                {hasDetails && (
+                                    <svg 
+                                        className={`w-5 h-5 text-gray-500 flex-shrink-0 ml-2 transition-transform duration-200 ${
+                                            isExpanded ? 'rotate-180' : ''
+                                        }`}
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                )}
+                            </div>
+
+                            {/* Expanded Details */}
+                            {isExpanded && hasDetails && (
+                                <div className="px-4 pb-4 space-y-3 border-t border-white/25 pt-3 mt-2">
+                                    {action.description && (
+                                        <div>
+                                            <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                                                Description
+                                            </div>
+                                            <div className="text-xs text-gray-600 leading-relaxed">
+                                                {action.description}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {action.variable && (
+                                        <div>
+                                            <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                                                Variable
+                                            </div>
+                                            <div className="text-xs text-gray-600 font-mono bg-gray-50/50 rounded-lg px-2 py-1.5">
+                                                {action.variable}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {action.arguments_sig && (() => {
+                                        // Parse arguments_sig - it can be a string (JSON) or already an array
+                                        let args = [];
+                                        try {
+                                            if (typeof action.arguments_sig === 'string') {
+                                                args = JSON.parse(action.arguments_sig);
+                                            } else if (Array.isArray(action.arguments_sig)) {
+                                                args = action.arguments_sig;
+                                            }
+                                        } catch (e) {
+                                            console.warn('Failed to parse arguments_sig:', e);
+                                        }
+
+                                        return (
+                                            <div>
+                                                <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
+                                                    Arguments Signature
+                                                </div>
+                                                {Array.isArray(args) && args.length > 0 ? (
+                                                    <div className="space-y-2">
+                                                        {args.map((arg, idx) => (
+                                                            <div 
+                                                                key={idx}
+                                                                className="glass-input rounded-lg px-3 py-2 flex items-center gap-3"
+                                                            >
+                                                                <span className="text-xs font-semibold text-gray-900 font-mono">
+                                                                    {arg.arg_name || 'unnamed'}
+                                                                </span>
+                                                                <span className="text-xs text-gray-500">:</span>
+                                                                <span className="text-xs text-gray-600 font-mono">
+                                                                    {arg.arg_type || 'unknown'}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-xs text-gray-500 italic">
+                                                        No arguments defined
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })
+            )}
+        </div>
+    );
+}
+
+function HistoryPanel() {
+    const history = [
+        { time: "2 minutes ago", query: "What is the capital of France?", type: "chat" },
+        { time: "5 minutes ago", query: "Explain quantum computing", type: "chat" },
+        { time: "10 minutes ago", query: "How does RAG work?", type: "chat" },
+        { time: "1 hour ago", query: "Analyze sales data", type: "task" }
+    ];
+
+    return (
+        <div className="space-y-3">
+            {history.map((item, index) => (
+                <div key={index} className="glass-card glass-hover rounded-xl p-4 shadow-sm cursor-pointer hover:bg-gray-50/30">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="text-xs text-gray-500 font-medium">{item.time}</div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            item.type === 'chat' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
+                        }`}>
+                            {item.type}
+                        </span>
+                    </div>
+                    <div className="text-sm text-gray-900 font-medium line-clamp-2">{item.query}</div>
+                </div>
+            ))}
+        </div>
+    );
+}

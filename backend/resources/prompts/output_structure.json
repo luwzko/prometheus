@@ -1,0 +1,76 @@
+{
+    "model": "{model_name}",
+    "messages": [
+        {"role": "system", "content": "{system_prompt}"},
+        {"role": "user", "content": "{user_input}"}
+    ],
+    "max_tokens": 0,
+    "temperature": 0,
+    "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "response",
+            "strict": true,
+            "schema": {
+                "type": "object",
+                "oneOf": [
+                    {
+                        "title": "ConversationResponse",
+                        "type": "object",
+                        "properties": {
+                            "mode": {"type": "string", "enum": ["respond"]},
+                            "text": {"type": "string", "description": "General text response."}
+                        },
+                        "required": ["mode", "text"],
+                        "additionalProperties": false
+                    },
+                    {
+                        "title": "ActionResponse",
+                        "type": "object",
+                        "properties": {
+                            "mode": {"type": "string", "enum": ["act"]},
+                            "text": {"type": "string", "description": "General text response."},
+                            "action_request": {
+                                "type": "object",
+                                "properties": {
+                                    "action_name": {"type": "string"},
+                                    "action_arguments": {
+                                        "type": "array",
+                                        "description": "The arguments for the action to process.",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": "Name of the argument for the action, each action has specific arguments it needs."
+                                                },
+                                                "value": {
+                                                    "type": "string",
+                                                    "description": "Value of the argument which will be passed to the action. Can also be a reference to action output."
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "required": ["action_name", "action_arguments"]
+                            }
+                        },
+                        "required": ["mode", "text", "action_request"],
+                        "additionalProperties": false
+                    },
+                    {
+                        "title": "PlanResponse",
+                        "type": "object",
+                        "properties": {
+                            "mode": {"type": "string", "enum": ["plan"]},
+                            "text": {"type": "string", "description": "General text response."},
+                            "task": {"type": "string", "description": "A task which was provided by the user and needs to be planned out."}
+                        },
+                        "required": ["mode", "text", "task"],
+                        "additionalProperties": false
+                    }
+                ]
+            }
+        }
+    }
+}

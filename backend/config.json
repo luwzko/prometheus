@@ -1,0 +1,40 @@
+{
+    "model": {
+        "name": "google/gemini-2.0-flash-001",
+        "base_url": "https://openrouter.ai/api/v1/chat/completions",
+        "max_tokens": 4096,
+        "temperature": 0.2
+    },
+
+    "prometheus": {
+        "main_agent": {
+            "prompt": "resources/prompts/system_prompt.txt",
+            "output_structure": "resources/prompts/output_structure.json"
+        },
+
+        "planner": {
+            "prompt": "resources/prompts/planner/system_prompt.txt",
+            "output_structure": "resources/prompts/planner/output_structure.json"
+        },
+
+        "executor": {
+            "prompt": "resources/prompts/executor/system_prompt.txt",
+            "output_structure": "resources/prompts/executor/output_structure.json"
+        },
+
+        "summarizer": {
+            "prompt": "resources/prompts/summarizer/system_prompt.txt",
+            "output_structure": "resources/prompts/summarizer/output_structure.json"
+        },
+        "action_manager": {
+            "think_agent": {
+                "prompt": "resources/prompts/action_files/think_prompt.txt",
+                "output_structure": "resources/prompts/action_files/action_structure.json"
+            },
+            "code_agent": {
+                "prompt": "resources/prompts/action_files/code_prompt.txt",
+                "output_structure": "resources/prompts/action_files/action_structure.json"
+            }
+        }
+    }
+}

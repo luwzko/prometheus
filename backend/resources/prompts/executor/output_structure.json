@@ -1,0 +1,92 @@
+{
+    "model": "{model_name}",
+    "messages": [
+        {"role": "system", "content": "{system_prompt}"},
+        {"role": "assistant", "content": "{planner_context}"}
+    ],
+    "max_tokens": 4096,
+    "temperature": 0.2,
+    "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+            "name":"response",
+            "strict":true,
+            "schema": {
+                "type":"object",
+                "properties": {
+                    "executions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Represents a general step / thought in planning, it is used for breaking down tasks in messages."
+                                },
+                                "intent": {
+                                    "type": "string",
+                                    "description": "intent represents what are you planning to do, the intent behind the message, task, user prompt etc. Its like your own writing board."
+                                },
+                                "action_request": {
+                                    "type": "object",
+                                    "properties": {
+                                        "action_name": {
+                                            "type": "string",
+                                            "description": "Name of the action to be used. Must be one of the available actions available in the prompt."
+                                        },
+                                        "action_arguments": {
+                                            "type": "array",
+                                            "description": "The arguments for the action to process.",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Name of the argument for the action, each action has specific arguments it needs."
+                                                    },
+                                                    "value": {
+                                                        "type": "string",
+                                                        "description": "Value of the argument which will be passed to the action. Can also be a reference to action output."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": ["action_name", "action_arguments"]
+                                },
+                                "control": {
+                                    "type": "object",
+                                    "description": "Control fields deciding how actions relate to one another, referencing them, and other things.",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "description": "Unique ID for this action."
+                                        },
+                                        "depends_on": {
+                                            "type": "array",
+                                            "description": "IDs of actions that must finish before this executes.",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "ref_output_as": {
+                                            "type": "string",
+                                            "description": "Defines a variable name for this actions output."
+                                        },
+                                        "use_refs": {
+                                            "type": "array",
+                                            "description": "Array of references previous action outputs to use as arguments / data."
+                                        }
+                                    },
+                                    "required": ["id"]
+                                }
+                            },
+                            "required": ["message", "intent", "action_request", "control"]
+                        }
+                    }
+                },
+                "required": ["plans"]
+            }
+        }
+    }
+}

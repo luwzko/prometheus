@@ -1,0 +1,270 @@
+import { useState } from "react";
+import Navbar from "../components/Navbar";
+import ChatArea from "../components/ChatArea";
+import InputBar from "../components/InputBar";
+import LeftPanel from "../components/LeftPanel";
+import RightSidebar from "../components/RightSidebar";
+import { sendChatMessage, formatPrometheusResponse, getAgentPrompt } from "../services/api";
+
+export default function Dashboard() {
+    const [messages, setMessages] = useState([
+        { role: "assistant", content: "Hello! I'm Prometheus. How can I help you today?" }
+    ]);
+    const [activePanel, setActivePanel] = useState("config");
+    const [isLoading, setIsLoading] = useState(false);
+
+    // IDE-style tabs management
+    const [tabs, setTabs] = useState([
+        { id: 'chat', title: 'Chat', type: 'chat', closable: false }
+    ]);
+    const [activeTab, setActiveTab] = useState('chat');
+
+    const handleSendMessage = async (content) => {
+        // Add user message immediately
+        setMessages(prev => [...prev, { role: "user", content }]);
+        setIsLoading(true);
+
+        try {
+            // Call API - sends POST /api/chat?message=...
+            const response = await sendChatMessage(content);
+            
+            // PrometheusOutput structure (from context.py):
+            // {
+            //   mode: "respond" | "act" | "plan",
+            //   text: { content: string } | null,
+            //   action_output: { source, variable, result } | null,
+            //   task: string | null,
+            //   plan: { plans: [...] } | null,
+            //   executed: { executed: {...} } | null
+            // }
+            // The formatPrometheusResponse function extracts the main text content.
+            // Full details are shown in the expandable MessageBubble component.
+            
+            const formattedContent = formatPrometheusResponse(response);
+            
+            // Add assistant response
+            setMessages(prev => [...prev, {
+                role: "assistant",
+                content: formattedContent,
+                rawResponse: response // Store raw response for debugging/inspection
+            }]);
+        } catch (error) {
+            console.error('Error sending message:', error);
+            
+            // Extract a user-friendly error message
+            let errorMessage = 'Failed to send message';
+            let errorDetails = '';
+            
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (typeof error === 'string') {
+                errorMessage = error;
+            }
+            
+            // Add helpful context based on error type
+            if (error.isNetworkError) {
+                errorDetails = '\n\n?? Troubleshooting:\n' +
+                    '1. Make sure the backend server is running\n' +
+                    '2. Check if CORS is enabled in the backend\n' +
+                    '3. Verify the API URL is correct: ' + (import.meta.env.VITE_API_URL || 'http://localhost:8000/api');
+            } else if (error.status === 500) {
+                errorDetails = '\n\n?? This is a backend error. The backend may have a response model mismatch.\n' +
+                    'The backend route expects PrometheusResponse but agent.execute() returns PrometheusOutput.\n' +
+                    'Check the backend logs for more details.';
+            } else if (error.status === 422) {
+                errorDetails = '\n\n?? Validation error. The request format may be incorrect.';
+            }
+            
+            setMessages(prev => [...prev, {
+                role: "assistant",
+                content: `? Error: ${errorMessage}${errorDetails}\n\nCheck the browser console (F12) for technical details.`
+            }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Open new tab (for prompts, agent configs, etc.)
+    const openTab = (newTab) => {
+        // Check if tab already exists
+        const existingTab = tabs.find(t => t.id === newTab.id);
+        if (existingTab) {
+            setActiveTab(newTab.id);
+            return;
+        }
+
+        setTabs([...tabs, { ...newTab, closable: true }]);
+        setActiveTab(newTab.id);
+    };
+
+    // Close tab
+    const closeTab = (tabId) => {
+        const newTabs = tabs.filter(t => t.id !== tabId);
+        setTabs(newTabs);
+
+        // If closing active tab, switch to another
+        if (activeTab === tabId) {
+            setActiveTab(newTabs[newTabs.length - 1]?.id || 'chat');
+        }
+    };
+
+    return (
+        <div className="h-screen relative flex flex-col overflow-hidden">
+            {/* Background Image with Overlay - matching landing page */}
+            <div
+                className="fixed inset-0 -z-20"
+                style={{
+                    backgroundImage: 'url(/snow_mountain.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundAttachment: 'fixed',
+                }}
+            />
+
+            {/* Enhanced gradient overlay for better glass effect visibility */}
+            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-900/8 via-gray-800/12 to-gray-900/8" />
+            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/25 via-white/15 to-white/35" />
+
+            <Navbar />
+
+            <div className="flex-1 flex overflow-hidden">
+                <LeftPanel activePanel={activePanel} setActivePanel={setActivePanel} />
+
+                {/* Center Area with Tabs - VS Code style */}
+                <div className="flex-1 flex flex-col min-w-0">
+                    {/* Tab Bar */}
+                    <div className="glass-nav flex items-center h-14 overflow-hidden">
+                        <div className="flex items-center h-full overflow-x-auto scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                            {tabs.map((tab) => (
+                                <div
+                                    key={tab.id}
+                                    className={`group flex items-center gap-2 px-5 h-full border-r border-white/20 cursor-pointer transition-all whitespace-nowrap ${
+                                        activeTab === tab.id
+                                            ? 'bg-gray-50/60 text-gray-900'
+                                            : 'text-gray-600 hover:bg-gray-50/30 hover:text-gray-900'
+                                    }`}
+                                    onClick={() => setActiveTab(tab.id)}
+                                >
+                                    <span className="text-sm font-semibold">{tab.title}</span>
+                                    {tab.closable && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                closeTab(tab.id);
+                                            }}
+                                            className="opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all ml-1"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Tab Content */}
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                        {activeTab === 'chat' ? (
+                            <>
+                                <ChatArea messages={messages} isLoading={isLoading} />
+                                <InputBar onSend={handleSendMessage} isLoading={isLoading} />
+                            </>
+                        ) : (
+                            <TabContent tab={tabs.find(t => t.id === activeTab)} />
+                        )}
+                    </div>
+                </div>
+
+                <RightSidebar onOpenTab={openTab} />
+            </div>
+        </div>
+    );
+}
+
+// Render different tab content based on type
+function TabContent({ tab }) {
+    if (!tab) return null;
+
+    switch (tab.type) {
+        case 'prompt':
+            return <PromptEditor prompt={tab.data} />;
+        case 'agent-config':
+            return <AgentConfigEditor agent={tab.data} />;
+        default:
+            return <div className="flex-1 flex items-center justify-center text-gray-600">Unknown tab type</div>;
+    }
+}
+
+// Prompt Editor Component (read-only for now)
+function PromptEditor({ prompt }) {
+    return (
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="max-w-4xl mx-auto">
+                <div className="glass-card rounded-2xl p-6 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">{prompt?.name || 'Prompt Editor'}</h2>
+                    <textarea
+                        value={prompt?.prompt || ''}
+                        readOnly
+                        className="w-full h-96 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 resize-none leading-relaxed font-mono"
+                        placeholder="Loading prompt..."
+                    />
+                    {prompt?.output_struct && (
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Output Structure</h3>
+                            <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 overflow-x-auto font-mono">
+                                {JSON.stringify(prompt.output_struct, null, 2)}
+                            </pre>
+                        </div>
+                    )}
+                    <div className="mt-4 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50">
+                        <p className="text-sm text-gray-700">
+                            <strong>Note:</strong> Prompt editing is read-only. The API does not yet support saving changes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Agent Config Editor (read-only for now)
+function AgentConfigEditor({ agent }) {
+    return (
+        <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="max-w-4xl mx-auto">
+                <div className="glass-card rounded-2xl p-6 shadow-2xl">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">{agent?.name || 'Agent Configuration'}</h2>
+                    {agent?.description && (
+                        <p className="text-gray-700 mb-6">{agent.description}</p>
+                    )}
+                    <div className="space-y-6">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3">System Prompt</h3>
+                            <textarea
+                                value={agent?.prompt || ''}
+                                readOnly
+                                className="w-full h-64 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 resize-none leading-relaxed font-mono"
+                                placeholder="Loading prompt..."
+                            />
+                        </div>
+                        {agent?.output_struct && (
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Output Structure</h3>
+                                <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 overflow-x-auto font-mono">
+                                    {JSON.stringify(agent.output_struct, null, 2)}
+                                </pre>
+                            </div>
+                        )}
+                    </div>
+                    <div className="mt-6 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50">
+                        <p className="text-sm text-gray-700">
+                            <strong>Note:</strong> Agent configuration is read-only. The API does not yet support saving changes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

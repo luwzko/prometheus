@@ -1,0 +1,25 @@
+from prometheus.agents.base_agent import BaseAgent
+from prometheus.setup.config import AgentConfig
+
+from prometheus.data_models.responses import Plan
+
+import logging
+logger = logging.getLogger("prometheus.subagents.planner")
+
+class PlannerAgent(BaseAgent):
+    """
+    Subagent Planner, it has a special output structure and prompt.
+    Its used to breakdown tasks into linked or not linked actions.
+    """
+    def __init__(self, agent_config: AgentConfig):
+        super().__init__(agent_config)
+
+    def execute(self, task: str) -> Plan:
+        planner_response = self._interact(task)
+        plan = Plan.model_validate(planner_response)
+
+        if plan is None:
+            logger.error("API error incurred.")
+            raise Exception("API error incurred.")
+
+        return plan

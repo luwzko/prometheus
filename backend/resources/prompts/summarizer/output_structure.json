@@ -1,0 +1,28 @@
+{
+    "model": "{model_name}",
+    "messages": [
+        {"role": "system", "content": "{system_prompt}"},
+        {"role": "assistant", "content": "{conversation_history}"},
+        {"role": "assistant", "content": "{executor_context}"},
+        {"role": "assistant", "content": "{execution_results}"}
+    ],
+    "max_tokens": 4096,
+    "temperature": 0.2,
+    "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "summarizer_response",
+            "strict": true,
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "summary": {
+                        "type": "string",
+                        "description": "Final, concise summary of all steps, actions, and results performed for the user request."
+                    }
+                },
+                "required": ["summary"]
+            }
+        }
+    }
+}

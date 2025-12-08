@@ -56,7 +56,7 @@
                                 },
                                 "control": {
                                     "type": "object",
-                                    "description": "Control fields  how actions relate to one another, referencing them, and other things.",
+                                    "description": "Control fields how actions relate to one another, referencing them, and other things.",
                                     "properties": {
                                         "id": {
                                             "type": "string",

@@ -12,6 +12,13 @@ class BaseAgent:
         self.model = Model(self._agent_config.model_config_)
         self.prompt = AgentPrompt(self._agent_config)
 
+    def get_model_config(self):
+        """
+        Fetch model config of the agent.
+        :return:
+        """
+        return self._agent_config.model_config_
+
     def _interact(self, message: str) -> str:
         """
         Basic function to interact with the model as the agent.

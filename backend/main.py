@@ -16,7 +16,7 @@ def cli(config_path: str | None):
 
         result = agent.execute(msg)
 
-        print(result.model_dump_json())
+        print(result.model_dump_json(indent=4))
 
 def api(host: str, port: int, reload: bool, config_file: str | None):
     get_prometheus(config_file)

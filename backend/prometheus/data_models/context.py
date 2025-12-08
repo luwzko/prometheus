@@ -1,5 +1,5 @@
 from prometheus.data_models.action import ActionRequest
-from prometheus.data_models.responses import Plan
+from prometheus.data_models.responses import Plan, Reflection
 
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Literal
@@ -57,4 +57,6 @@ class PrometheusOutput(BaseContext):
 
     task: Optional[str] = None
     plan: Optional[Plan] = None
+
     executed: Optional[ExecutorContext] = None
+    reflection: Optional[Reflection] = None

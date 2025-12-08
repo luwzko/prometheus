@@ -143,6 +143,31 @@ export async function getAvailableActions() {
 }
 
 /**
+ * Get model configuration
+ * @returns {Promise<ModelConfigResponse>}
+ */
+export async function getModelConfig() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/model_config`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching model config:', error);
+        throw error;
+    }
+}
+
+/**
  * Format PrometheusOutput for display in chat
  * 
  * HOW IT UNPACKS THE PROMETHEUS OUTPUT:

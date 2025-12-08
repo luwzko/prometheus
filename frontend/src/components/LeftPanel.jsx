@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAvailableActions } from "../services/api";
+import { getAvailableActions, getModelConfig } from "../services/api";
 
 export default function LeftPanel({ activePanel, setActivePanel }) {
     const panels = [
@@ -41,49 +41,66 @@ export default function LeftPanel({ activePanel, setActivePanel }) {
 }
 
 function ConfigPanel() {
+    const [modelConfig, setModelConfig] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadModelConfig = async () => {
+            try {
+                const config = await getModelConfig();
+                setModelConfig(config);
+                setError(null);
+            } catch (error) {
+                console.error('Error loading model config:', error);
+                setError('Unable to load model config. Backend may be offline.');
+                setModelConfig(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        loadModelConfig();
+    }, []);
+
+    if (isLoading) {
+        return <div className="text-sm text-gray-600">Loading model config...</div>;
+    }
+
+    if (error) {
+        return (
+            <div className="space-y-2">
+                <div className="text-sm text-red-600">{error}</div>
+                <div className="text-xs text-gray-500">Make sure the backend is running</div>
+            </div>
+        );
+    }
+
+    if (!modelConfig) {
+        return <div className="text-sm text-gray-600">No model config available</div>;
+    }
+
     return (
         <div className="space-y-6">
             <div>
-                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Model</label>
-                <select className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all cursor-pointer appearance-none bg-no-repeat bg-right pr-10" style={{backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e\")", backgroundPosition: "right 0.5rem center", backgroundSize: "1.5em 1.5em"}}>
-                    <option>gpt-4</option>
-                    <option>gpt-3.5-turbo</option>
-                    <option>claude-3-opus</option>
-                    <option>claude-3-sonnet</option>
-                </select>
+                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Model Name</label>
+                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900">
+                    {modelConfig.name || 'N/A'}
+                </div>
             </div>
 
             <div>
                 <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Temperature</label>
-                <input
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    defaultValue="0.7"
-                    className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all"
-                />
+                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900">
+                    {modelConfig.temperature !== undefined ? modelConfig.temperature.toFixed(2) : 'N/A'}
+                </div>
             </div>
 
             <div>
                 <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Max Tokens</label>
-                <input
-                    type="number"
-                    defaultValue="2000"
-                    className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all"
-                />
-            </div>
-
-            <div>
-                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Top P</label>
-                <input
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    defaultValue="1.0"
-                    className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 transition-all"
-                />
+                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900">
+                    {modelConfig.max_tokens !== undefined ? modelConfig.max_tokens.toLocaleString() : 'N/A'}
+                </div>
             </div>
         </div>
     );

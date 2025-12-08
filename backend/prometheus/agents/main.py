@@ -1,6 +1,6 @@
 from prometheus.setup.config import PrometheusConfig
 from prometheus.agents.base_agent import BaseAgent
-from prometheus.agents.subagents import PlannerAgent, ExecutorAgent, SummarizerAgent
+from prometheus.agents.subagents import PlannerAgent, ExecutorAgent, ReflectorAgent
 
 from prometheus.data_models.responses import PrometheusResponse
 from prometheus.data_models.context import ModelOutput, PrometheusOutput
@@ -21,7 +21,7 @@ class Prometheus(BaseAgent):
 
         self.planner = PlannerAgent(prometheus_config.planner)
         self.executor = ExecutorAgent(prometheus_config.executor)
-        #self.summarizer = SummarizerAgent(prometheus_config.summarizer)
+        self.reflector = ReflectorAgent(prometheus_config.reflector)
 
     def execute(self, message: str) -> PrometheusOutput | None:
         content = self._interact(message)
@@ -37,7 +37,9 @@ class Prometheus(BaseAgent):
         prometheus_output.text = ModelOutput.model_validate({"content": validated.text})
 
         logger.debug(f"Prometheus decided on running: {validated.mode}")
+
         print(validated)
+
         match validated.mode:
             case "respond": ...
             case "act":
@@ -45,13 +47,20 @@ class Prometheus(BaseAgent):
                 prometheus_output.action_output = action_output
 
             case "plan":
-                plans = self.planner.execute(validated.task)
-                executor_context = self.executor.execute(plans)
-
                 prometheus_output.task = validated.task
-                prometheus_output.plan = plans
 
+                # first plan out the task
+                plans = self.planner.execute(validated.task)
+                # execute it
+                executor_context = self.executor.execute(plans)
+                # now reflect on it
+                reflection_context = self.reflector.execute(executor_context)
+
+
+                # add all generated context to the prometheus output
+                prometheus_output.plan = plans
                 prometheus_output.executed = executor_context
+                prometheus_output.reflection = reflection_context
 
             case _:
 

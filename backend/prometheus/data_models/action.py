@@ -1,7 +1,10 @@
 from pydantic import BaseModel
-from typing import Optional, List, Type, Any
+from typing import Optional, List, Any
 
 class ActionRequest(BaseModel):
+    """
+    A data class which describes an Action request. Which action to use and what are the arguments.
+    """
     class ActionArgument(BaseModel):
         name: str = None
         value: Any = None

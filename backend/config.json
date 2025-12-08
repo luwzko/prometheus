@@ -22,9 +22,9 @@
             "output_structure": "resources/prompts/executor/output_structure.json"
         },
 
-        "summarizer": {
-            "prompt": "resources/prompts/summarizer/system_prompt.txt",
-            "output_structure": "resources/prompts/summarizer/output_structure.json"
+        "reflector": {
+            "prompt": "resources/prompts/reflector/system_prompt.txt",
+            "output_structure": "resources/prompts/reflector/output_structure.json"
         },
         "action_manager": {
             "think_agent": {

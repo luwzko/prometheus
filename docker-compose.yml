@@ -21,8 +21,14 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+    env_file:
+      - .env
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
+      # VITE_API_URL can be set in .env file or overridden here
+      # IMPORTANT: Use the URL that the browser will use to access the backend
+      # (e.g., http://localhost:8000/api or http://VM_IP:8000/api)
+      # NOT the Docker service name, since the browser runs on the host machine
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000/api}
     networks:
       - prometheus-network
 

@@ -50,7 +50,7 @@ class PrometheusConfig(BaseModel):
 
     planner: AgentConfig
     executor: AgentConfig
-    summarizer: AgentConfig
+    reflector: AgentConfig
 
     action_manager: ActionManagerConfig
 

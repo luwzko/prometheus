@@ -66,6 +66,22 @@ class Plan(BaseModel):
     def __iter__(self):
         return iter(self.plans)
 
+class Reflection(BaseModel):
+    class ErrorControl(BaseModel):
+
+        error_detected: Optional[bool] = None
+        error_reason: Optional[str] = None
+        recommended_action: Optional[str] = None
+
+    summary: Optional[str] = None
+    control: Optional[ErrorControl] = None
+
 class APIPromptResponse(BaseModel):
     prompt: Optional[str] = None
     output_struct: Optional[Dict[str, str]] = None
+
+class ModelConfigResponse(BaseModel):
+    """Public version of ModelConfig - excludes sensitive fields"""
+    name: str
+    max_tokens: int = Field(le=8192)
+    temperature: float = Field(ge=0.0, le=1.0)

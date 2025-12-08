@@ -8,8 +8,9 @@ from prometheus.agents.factory import get_prometheus
 from prometheus.actions.action_manager import ActionManager
 from prometheus.data_models.context import PrometheusOutput
 
-from prometheus.data_models.responses import PrometheusResponse, APIPromptResponse
+from prometheus.data_models.responses import PrometheusResponse, APIPromptResponse, ModelConfigResponse
 from prometheus.data_models.action import Action
+from prometheus.setup.config import ModelConfig
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ async def chat(message: str):
 
     Called by the frontend when the user sends a message.
     :param message:
-    :return:
+    :return PrometheusOutput:
     """
     try:
         agent = get_prometheus()
@@ -35,8 +36,12 @@ async def get_prompts(agent_name: str):
     """
     GET /api/prompts/{agent_name}
     Called by the frontend when fetching agent prompts and output structure to display.
+
+    If the agent_name is main return prompt of Prometheus.
+    else if its any other name, it will search thru the attributes of prometheus to find a subagent with this name.
+
     :param agent_name:
-    :return:
+    :return APIPromptResponse:
     """
     try:
         agent: Prometheus = get_prometheus()
@@ -58,8 +63,25 @@ async def get_prompts(agent_name: str):
     except HTTPException as e:
         raise HTTPException(status_code = 500, detail = str(e))
 
+@router.get("/model_config", response_model = ModelConfigResponse)
+async def get_model_config():
+    """
+    Returns the model_config but without api_key and base_url.
+    :return ModelConfigResponse:
+    """
+    try:
+        agent = get_prometheus()
+        return agent.get_model_config()
+
+    except HTTPException as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/actions", response_model = List[Action])
 async def get_actions():
+    """
+    Returns a list of actions fetched from action_registry.
+    :return List[Action]:
+    """
     try:
         return list(ActionManager.ACTION_REGISTRY.keys())
 

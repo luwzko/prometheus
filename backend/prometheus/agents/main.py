@@ -2,8 +2,8 @@ from prometheus.setup.config import PrometheusConfig
 from prometheus.agents.base_agent import BaseAgent
 from prometheus.agents.subagents import PlannerAgent, ExecutorAgent, ReflectorAgent
 
-from prometheus.data_models.responses import PrometheusResponse
-from prometheus.data_models.context import ModelOutput, PrometheusOutput
+from prometheus.data_models.agent import PrometheusResponse
+from prometheus.data_models.shared import ModelOutput, PrometheusOutput
 
 from prometheus.actions.action_manager import run, ActionManager
 

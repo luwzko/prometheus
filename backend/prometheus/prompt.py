@@ -1,6 +1,6 @@
 from prometheus.setup.config import AgentConfig
 
-from prometheus.data_models.responses import APIPromptResponse
+from prometheus.data_models.api import APIPromptResponse
 
 from typing import TypeAlias, Dict, Type
 import json

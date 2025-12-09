@@ -1,5 +1,5 @@
 from prometheus.setup.config import ModelConfig
-from prometheus.data_models.responses import ModelResponse
+from prometheus.data_models.api import ModelResponse
 
 import requests
 import json

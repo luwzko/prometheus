@@ -2,8 +2,7 @@ from prometheus.agents.action_agents.code_agent import CodeAgent
 from prometheus.agents.action_agents.think_agent import ThinkAgent
 
 from prometheus.setup.config import ActionManagerConfig
-from prometheus.data_models.action import Action, ActionRequest
-from prometheus.data_models.context import ActionOutput
+from prometheus.data_models.action import *
 
 from typing import Callable, Dict, Any, List
 import inspect

@@ -1,6 +1,6 @@
 from prometheus.agents.base_agent import BaseAgent
-from prometheus.data_models.context import ExecutorContext
-from prometheus.data_models.responses import Reflection
+from prometheus.data_models.agent import ExecutorContext, Reflection
+
 from prometheus.setup.config import AgentConfig
 
 import logging

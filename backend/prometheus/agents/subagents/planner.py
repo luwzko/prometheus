@@ -1,7 +1,7 @@
 from prometheus.agents.base_agent import BaseAgent
 from prometheus.setup.config import AgentConfig
 
-from prometheus.data_models.responses import Plan
+from prometheus.data_models.agent.subagent import Plan
 
 import logging
 logger = logging.getLogger("prometheus.subagents.planner")

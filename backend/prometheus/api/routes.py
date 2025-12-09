@@ -6,11 +6,11 @@ from prometheus.agents.main import Prometheus
 from prometheus.agents.factory import get_prometheus
 
 from prometheus.actions.action_manager import ActionManager
-from prometheus.data_models.context import PrometheusOutput
 
-from prometheus.data_models.responses import PrometheusResponse, APIPromptResponse, ModelConfigResponse
+from prometheus.data_models.shared import PrometheusOutput
+from prometheus.data_models.api import APIPromptResponse, ModelConfigResponse
+
 from prometheus.data_models.action import Action
-from prometheus.setup.config import ModelConfig
 
 router = APIRouter()
 

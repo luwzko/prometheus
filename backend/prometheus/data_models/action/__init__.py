@@ -1,19 +1,8 @@
+from typing import Optional, List
 from pydantic import BaseModel
-from typing import Optional, List, Any
 
-class ActionRequest(BaseModel):
-    """
-    A data class which describes an Action request. Which action to use and what are the arguments.
-    """
-    class ActionArgument(BaseModel):
-        name: str = None
-        value: Any = None
-
-    action_name: str
-    action_arguments: Optional[List[ActionArgument]]
-
-    def get_dict(self):
-        return { arg.name: arg.value for arg in self.action_arguments }
+from prometheus.data_models.action.output import ActionOutput
+from prometheus.data_models.action.request import ActionRequest
 
 class Action(BaseModel):
     """
@@ -50,3 +39,7 @@ class Action(BaseModel):
 
     def __hash__(self):
         return hash((self.name, self.description, self.variable))
+
+__all__ = [
+    "Action", "ActionOutput", "ActionRequest"
+]

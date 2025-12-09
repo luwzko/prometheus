@@ -1,5 +1,5 @@
 from prometheus.agents.base_agent import BaseAgent
-from prometheus.data_models.responses import ActionAgentResponse
+from prometheus.data_models.agent import ActionAgentResponse
 from prometheus.setup.config import AgentConfig
 
 import logging

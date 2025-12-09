@@ -1,18 +1,7 @@
-from prometheus.data_models.action import ActionRequest
-from prometheus.data_models.responses import Plan, Reflection
-
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any, Literal
+from typing import Optional, List, Dict
 
-class BaseContext(BaseModel): ...
-
-class ActionOutput(BaseContext):
-    source: Optional[str] = None
-    variable: Optional[str] = None
-    result: Any = None
-
-class ModelOutput(BaseContext):
-    content: str
+from prometheus.data_models.action import ActionOutput, ActionRequest
 
 class ExecutorContext(BaseModel):
     """
@@ -38,6 +27,7 @@ class ExecutorContext(BaseModel):
 
     def add_step(self, execution_step: ExecutionSteps):
         key = execution_step.control.ref_output_as
+
         if key is None:
             raise ValueError("ExecutionStep.control.ref_output_as is None; cannot store in executed dict.")
 
@@ -48,15 +38,3 @@ class ExecutorContext(BaseModel):
 
     def __iter__(self):
         return iter(self.executed)
-
-class PrometheusOutput(BaseContext):
-    mode: Optional[str] = None
-    text: Optional[ModelOutput] = None
-
-    action_output: Optional[ActionOutput] = None
-
-    task: Optional[str] = None
-    plan: Optional[Plan] = None
-
-    executed: Optional[ExecutorContext] = None
-    reflection: Optional[Reflection] = None

@@ -1,7 +1,8 @@
 from prometheus.agents.base_agent import BaseAgent
-from prometheus.data_models.context import ActionOutput, ExecutorContext
 from prometheus.setup.config import AgentConfig
-from prometheus.data_models.responses import Plan
+
+from prometheus.data_models.action import ActionOutput
+from prometheus.data_models.agent import Plan, ExecutorContext
 
 from prometheus.actions.action_manager import run
 
@@ -58,8 +59,8 @@ class ExecutorAgent(BaseAgent):
             action_output: ActionOutput
 
             for arg in step.action_request.action_arguments:
-                if self.ref_pattern.findall(arg.value):
 
+                if self.ref_pattern.findall(arg.value):
                     arg.value = replace_refs(arg.value)
 
             action_output = run(step.action_request)

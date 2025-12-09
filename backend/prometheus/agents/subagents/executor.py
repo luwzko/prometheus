@@ -11,13 +11,13 @@ import re
 import logging
 logger = logging.getLogger("prometheus.subagents.executor")
 
-class ExecutorAgent(BaseAgent):
+class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
     """
     Subagent Executor, it has an output structure and prompt, but they are not used.
     An object which parses Planners output into actions and runs it.
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, response_model = ExecutorContext)
+        super().__init__(agent_config, ExecutorContext)
 
         self.ref_pattern = re.compile(r"\{ref:([A-Za-z0-9_]+)\}")
 

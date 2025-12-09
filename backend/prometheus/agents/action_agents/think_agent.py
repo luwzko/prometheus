@@ -5,13 +5,13 @@ from prometheus.setup.config import AgentConfig
 import logging
 logger = logging.getLogger("prometheus.action_agents.think")
 
-class ThinkAgent(BaseAgent):
+class ThinkAgent(BaseAgent[ActionAgentResponse, ActionAgentResponse]):
     """
     A special agent that is basically an action, this one specializes in reasoning.
     These kind of action agents use the same output structure but different prompts.
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, response_model = ActionAgentResponse)
+        super().__init__(agent_config, ActionAgentResponse)
 
     def execute(self, task: str):
         logger.debug(f"Calling action agent THINK with {task}.")

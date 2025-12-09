@@ -1,5 +1,5 @@
-from .output import ModelOutput, PrometheusOutput
+from .output import ModelOutput, PrometheusOutput, UserInput
 
 __all__ = [
-    "ModelOutput", "PrometheusOutput"
+    "ModelOutput", "PrometheusOutput", "UserInput"
 ]

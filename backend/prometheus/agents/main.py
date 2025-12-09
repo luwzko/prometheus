@@ -3,19 +3,19 @@ from prometheus.agents.base_agent import BaseAgent
 from prometheus.agents.subagents import PlannerAgent, ExecutorAgent, ReflectorAgent
 
 from prometheus.data_models.agent import PrometheusResponse
-from prometheus.data_models.shared import ModelOutput, PrometheusOutput
+from prometheus.data_models.shared import ModelOutput, PrometheusOutput, UserInput
 
 from prometheus.actions.action_manager import run, ActionManager
 
 import logging
 logger = logging.getLogger("prometheus.agents.main")
 
-class Prometheus(BaseAgent):
+class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
     """
     This is the main agent, Prometheus decides does a request need to be planned, acted on or just a response.
     """
     def __init__(self, prometheus_config: PrometheusConfig):
-        super().__init__(prometheus_config.main_agent, response_model = PrometheusResponse)
+        super().__init__(prometheus_config.main_agent, PrometheusResponse, PrometheusOutput)
 
         self.action_manager = ActionManager(prometheus_config.action_manager)
 
@@ -24,6 +24,7 @@ class Prometheus(BaseAgent):
         self.reflector = ReflectorAgent(prometheus_config.reflector)
 
     def execute(self, message: str) -> PrometheusOutput | None:
+        user_input = UserInput(content = message)
         validated = self._interact(message)
 
         if validated is None:
@@ -65,5 +66,7 @@ class Prometheus(BaseAgent):
 
                 logger.warning("Prometheus hallucinated response mode.")
                 return None
+
+        self.conversation_history.add_to_history(user_input, prometheus_output)
 
         return prometheus_output

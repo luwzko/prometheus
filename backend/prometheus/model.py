@@ -18,7 +18,7 @@ class Model:
             "Authorization": f"Bearer {self._model_config.api_key}",
         }
 
-    def _interact(self, data: dict) -> requests.Response | None:
+    def _interact(self, data: str) -> requests.Response | None:
         response: requests.Response
         try:
             response = requests.post(
@@ -33,7 +33,7 @@ class Model:
 
         return response
 
-    def chat(self, data: dict):
+    def chat(self, data: str):
         response = self._interact(data)
 
         resp_json = json.loads(response.text)

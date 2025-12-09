@@ -6,13 +6,13 @@ from prometheus.data_models.agent.subagent import Plan
 import logging
 logger = logging.getLogger("prometheus.subagents.planner")
 
-class PlannerAgent(BaseAgent):
+class PlannerAgent(BaseAgent[Plan, Plan]):
     """
     Subagent Planner, it has a special output structure and prompt.
     Its used to breakdown tasks into linked or not linked actions.
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, response_model = Plan)
+        super().__init__(agent_config, Plan)
 
     def execute(self, task: str):
         plan = self._interact(task)

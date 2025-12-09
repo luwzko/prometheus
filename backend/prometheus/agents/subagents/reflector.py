@@ -6,9 +6,9 @@ from prometheus.setup.config import AgentConfig
 import logging
 logger = logging.getLogger("prometheus.subagents.reflector")
 
-class ReflectorAgent(BaseAgent):
+class ReflectorAgent(BaseAgent[Reflection, Reflection]):
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, response_model = Reflection)
+        super().__init__(agent_config, Reflection)
 
     def execute(self, executed_context: ExecutorContext):
         reflection = self._interact(executed_context.model_dump_json())

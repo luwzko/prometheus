@@ -2,7 +2,7 @@ from prometheus.setup.config import AgentConfig
 
 from prometheus.data_models.api import APIPromptResponse
 
-from typing import TypeAlias, Dict, Type
+from typing import TypeAlias, Dict, Type, List
 import json
 
 import logging
@@ -75,16 +75,13 @@ class AgentPrompt:
         for var, data in self.variables.items():
             self._prompt = self._prompt.replace(var, data)
 
-    def get(self, user_message: str, rettype: Type[str | OutputStruct] = str) -> str | OutputStruct:
+    def get(self, user_message: str, history_context: List[dict]) -> str:
         """
         `get` method is the main way to use the AgentPrompt class.
 
         :param user_message:
-        user_message is self_explanatory
-        :param rettype:
-        rettype defines in which type to return the finalized prompt.
-
-        :return finalized prompt in rettype:
+        :param history_context:
+        :return finalized prompt:
         """
         logger.debug(f"Fetching prompt structure:\n msg = {user_message}")
 
@@ -92,14 +89,11 @@ class AgentPrompt:
             return {"role": role, "content": content}
 
         messages = [
-            generate_message("system", self._prompt)
+            generate_message("system", self._prompt),
+            *history_context,
+            generate_message("user", user_message)
         ]
 
-
-        messages.append(generate_message("user", user_message))
         self._output_struct["messages"] = messages
 
-        if rettype == str:
-            return json.dumps(self._output_struct)
-
-        return self._output_struct
+        return json.dumps(self._output_struct)

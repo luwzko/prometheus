@@ -110,20 +110,11 @@ export default function Dashboard() {
 
     return (
         <div className="h-screen relative flex flex-col overflow-hidden">
-            {/* Background Image with Overlay - matching landing page */}
-            <div
-                className="fixed inset-0 -z-20"
-                style={{
-                    backgroundImage: 'url(/snow_mountain.jpg)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundAttachment: 'fixed',
-                }}
-            />
+            {/* Mesh Gradient Background */}
+            <div className="mesh-gradient" />
 
-            {/* Enhanced gradient overlay for better glass effect visibility */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-br from-gray-900/8 via-gray-800/12 to-gray-900/8" />
-            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/25 via-white/15 to-white/35" />
+            {/* Subtle overlay for better glass effect visibility */}
+            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/20 via-white/10 to-white/30" />
 
             <Navbar />
 

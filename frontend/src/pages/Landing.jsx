@@ -4,19 +4,11 @@ import { Link } from "react-router-dom";
 export default function Landing() {
     return (
         <div className="min-h-screen relative overflow-hidden">
-            {/* Background Image with Overlay */}
-            <div
-                className="fixed inset-0 -z-20"
-                style={{
-                    backgroundImage: 'url(/snow_mountain.jpg)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundAttachment: 'fixed',
-                }}
-            />
+            {/* Mesh Gradient Background */}
+            <div className="mesh-gradient" />
 
-            {/* White gradient overlay for readability */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/40 via-white/30 to-white/50" />
+            {/* Subtle overlay for readability */}
+            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/30 via-white/20 to-white/40" />
 
             <Navbar />
 

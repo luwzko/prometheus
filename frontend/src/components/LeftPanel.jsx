@@ -9,22 +9,22 @@ export default function LeftPanel({ activePanel, setActivePanel }) {
     ];
 
     return (
-        <div className="w-80 glass-premium flex flex-col shadow-xl">
+        <div className="w-80 glass-premium flex flex-col shadow-xl border-r border-white/10 dark:border-white/5">
             {/* Tab Bar */}
-            <div className="flex border-b border-white/25 bg-gray-50/20 h-14">
+            <div className="flex border-b border-white/10 dark:border-white/5 h-12">
                 {panels.map((panel) => (
                     <button
                         key={panel.id}
                         onClick={() => setActivePanel(panel.id)}
                         className={`flex-1 px-4 h-full text-xs font-semibold uppercase tracking-wider transition-all relative flex items-center justify-center ${
                             activePanel === panel.id
-                                ? "text-gray-900 bg-gray-50/40"
-                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/20"
+                                ? "text-gray-900 dark:text-gray-100 bg-white/20 dark:bg-white/5"
+                                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/10 dark:hover:bg-white/5"
                         }`}
                     >
                         {panel.label}
                         {activePanel === panel.id && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 dark:bg-gray-100 rounded-t-full" />
                         )}
                     </button>
                 ))}
@@ -64,41 +64,41 @@ function ConfigPanel() {
     }, []);
 
     if (isLoading) {
-        return <div className="text-sm text-gray-600">Loading model config...</div>;
+        return <div className="text-sm text-gray-600 dark:text-gray-400">Loading model config...</div>;
     }
 
     if (error) {
         return (
             <div className="space-y-2">
-                <div className="text-sm text-red-600">{error}</div>
-                <div className="text-xs text-gray-500">Make sure the backend is running</div>
+                <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Make sure the backend is running</div>
             </div>
         );
     }
 
     if (!modelConfig) {
-        return <div className="text-sm text-gray-600">No model config available</div>;
+        return <div className="text-sm text-gray-600 dark:text-gray-400">No model config available</div>;
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             <div>
-                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Model Name</label>
-                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900">
+                <label className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-2 block uppercase tracking-wide">Model Name</label>
+                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {modelConfig.name || 'N/A'}
                 </div>
             </div>
 
             <div>
-                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Temperature</label>
-                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900">
+                <label className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-2 block uppercase tracking-wide">Temperature</label>
+                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {modelConfig.temperature !== undefined ? modelConfig.temperature.toFixed(2) : 'N/A'}
                 </div>
             </div>
 
             <div>
-                <label className="text-xs font-bold text-gray-900 mb-2 block uppercase tracking-wide">Max Tokens</label>
-                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900">
+                <label className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-2 block uppercase tracking-wide">Max Tokens</label>
+                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {modelConfig.max_tokens !== undefined ? modelConfig.max_tokens.toLocaleString() : 'N/A'}
                 </div>
             </div>
@@ -158,22 +158,22 @@ function ActionsPanel() {
     };
 
     if (isLoading) {
-        return <div className="text-sm text-gray-600">Loading actions...</div>;
+        return <div className="text-sm text-gray-600 dark:text-gray-400">Loading actions...</div>;
     }
 
     if (error) {
         return (
             <div className="space-y-2">
-                <div className="text-sm text-red-600">{error}</div>
-                <div className="text-xs text-gray-500">Make sure the backend is running</div>
+                <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Make sure the backend is running</div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-2">
             {actions.length === 0 ? (
-                <div className="text-sm text-gray-600">No actions available</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">No actions available</div>
             ) : (
                 actions.map((action, index) => {
                     const isExpanded = expandedActions.has(action.name);
@@ -186,22 +186,22 @@ function ActionsPanel() {
                         >
                             {/* Header - Always visible */}
                             <div 
-                                className="p-4 flex items-center justify-between cursor-pointer group hover:bg-gray-50/20 transition-colors"
+                                className="p-3 flex items-center justify-between cursor-pointer group hover:bg-white/10 dark:hover:bg-white/5 transition-colors"
                                 onClick={() => hasDetails && toggleExpand(action.name)}
                             >
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-semibold text-gray-900 truncate">
+                                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                                         {action.name || 'Unknown Action'}
                                     </div>
                                     {action.description && !isExpanded && (
-                                        <div className="text-xs text-gray-600 mt-1 line-clamp-1">
+                                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-1">
                                             {action.description}
                                         </div>
                                     )}
                                 </div>
                                 {hasDetails && (
                                     <svg 
-                                        className={`w-5 h-5 text-gray-500 flex-shrink-0 ml-2 transition-transform duration-200 ${
+                                        className={`w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2 transition-transform duration-200 ${
                                             isExpanded ? 'rotate-180' : ''
                                         }`}
                                         fill="none" 
@@ -215,13 +215,13 @@ function ActionsPanel() {
 
                             {/* Expanded Details */}
                             {isExpanded && hasDetails && (
-                                <div className="px-4 pb-4 space-y-3 border-t border-white/25 pt-3 mt-2">
+                                <div className="px-3 pb-3 space-y-3 border-t border-white/10 dark:border-white/5 pt-3">
                                     {action.description && (
                                         <div>
-                                            <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-1">
                                                 Description
                                             </div>
-                                            <div className="text-xs text-gray-600 leading-relaxed">
+                                            <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                                                 {action.description}
                                             </div>
                                         </div>
@@ -229,10 +229,10 @@ function ActionsPanel() {
                                     
                                     {action.variable && (
                                         <div>
-                                            <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-1">
                                                 Variable
                                             </div>
-                                            <div className="text-xs text-gray-600 font-mono bg-gray-50/50 rounded-lg px-2 py-1.5">
+                                            <div className="text-xs text-gray-600 dark:text-gray-300 font-mono bg-white/20 dark:bg-white/5 rounded-lg px-2 py-1.5">
                                                 {action.variable}
                                             </div>
                                         </div>
@@ -253,7 +253,7 @@ function ActionsPanel() {
 
                                         return (
                                             <div>
-                                                <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
+                                                <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
                                                     Arguments Signature
                                                 </div>
                                                 {Array.isArray(args) && args.length > 0 ? (
@@ -263,18 +263,18 @@ function ActionsPanel() {
                                                                 key={idx}
                                                                 className="glass-input rounded-lg px-3 py-2 flex items-center gap-3"
                                                             >
-                                                                <span className="text-xs font-semibold text-gray-900 font-mono">
+                                                                <span className="text-xs font-semibold text-gray-900 dark:text-gray-100 font-mono">
                                                                     {arg.arg_name || 'unnamed'}
                                                                 </span>
-                                                                <span className="text-xs text-gray-500">:</span>
-                                                                <span className="text-xs text-gray-600 font-mono">
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">:</span>
+                                                                <span className="text-xs text-gray-600 dark:text-gray-300 font-mono">
                                                                     {arg.arg_type || 'unknown'}
                                                                 </span>
                                                             </div>
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <div className="text-xs text-gray-500 italic">
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 italic">
                                                         No arguments defined
                                                     </div>
                                                 )}
@@ -300,18 +300,20 @@ function HistoryPanel() {
     ];
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-2">
             {history.map((item, index) => (
-                <div key={index} className="glass-card glass-hover rounded-xl p-4 shadow-sm cursor-pointer hover:bg-gray-50/30">
+                <div key={index} className="glass-card glass-hover rounded-xl p-3 shadow-sm cursor-pointer hover:bg-white/10 dark:hover:bg-white/5 transition-colors">
                     <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs text-gray-500 font-medium">{item.time}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">{item.time}</div>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            item.type === 'chat' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
+                            item.type === 'chat' 
+                                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
+                                : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
                         }`}>
                             {item.type}
                         </span>
                     </div>
-                    <div className="text-sm text-gray-900 font-medium line-clamp-2">{item.query}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100 font-medium line-clamp-2">{item.query}</div>
                 </div>
             ))}
         </div>

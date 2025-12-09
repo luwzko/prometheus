@@ -8,7 +8,7 @@ export default function Navbar() {
             <nav className="flex items-center justify-between px-6 py-4">
                 {/* Logo */}
                 <Link to="/" className="flex items-center group">
-                    <span className="text-xl font-semibold tracking-tight text-gray-900" style={{fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"}}>
+                    <span className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100" style={{fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"}}>
                         Prometheus
                     </span>
                 </Link>
@@ -19,8 +19,8 @@ export default function Navbar() {
                         to="/"
                         className={`px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                             pathname === "/"
-                                ? "bg-white/50 text-gray-900 shadow-sm"
-                                : "text-gray-700 hover:bg-white/30"
+                                ? "bg-white/50 dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10"
                         }`}
                     >
                         Home
@@ -29,8 +29,8 @@ export default function Navbar() {
                         to="/dashboard"
                         className={`px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                             pathname === "/dashboard"
-                                ? "bg-white/50 text-gray-900 shadow-sm"
-                                : "text-gray-700 hover:bg-white/30"
+                                ? "bg-white/50 dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10"
                         }`}
                     >
                         Dashboard
@@ -39,8 +39,8 @@ export default function Navbar() {
                         to="/settings"
                         className={`p-2 rounded-xl transition-all duration-200 ${
                             pathname === "/settings"
-                                ? "bg-white/50 text-gray-900 shadow-sm"
-                                : "text-gray-700 hover:bg-white/30"
+                                ? "bg-white/50 dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10"
                         }`}
                         title="Settings"
                     >

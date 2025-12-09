@@ -8,7 +8,7 @@ export default function Landing() {
             <div className="mesh-gradient" />
 
             {/* Subtle overlay for readability */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/30 via-white/20 to-white/40" />
+            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/30 via-white/20 to-white/40 dark:from-gray-900/40 dark:via-gray-900/30 dark:to-gray-900/50" />
 
             <Navbar />
 
@@ -17,12 +17,12 @@ export default function Landing() {
                 <section className="mb-32 animate-fade-in-up">
                     <div className="glass-card rounded-[2rem] p-12 md:p-16 text-center" style={{backdropFilter: 'blur(100px)', WebkitBackdropFilter: 'blur(100px)', background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)'}}>
                         {/* Headline */}
-                        <h1 className="text-7xl lg:text-8xl font-extrabold tracking-tight text-gray-900 mb-8 leading-[1.1] text-display">
+                        <h1 className="text-7xl lg:text-8xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 mb-8 leading-[1.1] text-display">
                             AI that thinks,<br />plans, and executes
                         </h1>
 
                         {/* Subheading */}
-                        <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-12 leading-relaxed font-light text-body">
+                        <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed font-light text-body">
                             Build intelligent agents that work autonomously. From simple automation to complex business processes, Prometheus handles it all.
                         </p>
 
@@ -40,7 +40,7 @@ export default function Landing() {
                         </div>
 
                         {/* Trust indicators */}
-                        <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-gray-600">
+                        <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-gray-600 dark:text-gray-400">
                             <div className="flex items-center gap-2.5">
                                 <div className="status-indicator status-online w-2.5 h-2.5"></div>
                                 <span className="font-medium">Live monitoring</span>
@@ -87,10 +87,10 @@ export default function Landing() {
                             key={index}
                             className="glass-card glass-hover rounded-2xl p-8 space-component"
                         >
-                            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-display">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-display">
                                 {feature.title}
                             </h3>
-                            <p className="text-gray-700 leading-relaxed text-body">
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-body">
                                 {feature.description}
                             </p>
                         </div>
@@ -102,13 +102,13 @@ export default function Landing() {
                     <div className="grid md:grid-cols-2 gap-6 items-center">
                         {/* Left: Text Content */}
                         <div className="space-y-6">
-                            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight text-display">
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight text-display">
                                 Ready to transform your AI workflow?
                             </h2>
-                            <p className="text-lg text-gray-600 leading-relaxed text-body">
+                            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed text-body">
                                 Join thousands of developers building the next generation of AI-powered applications. Start free, scale as you grow.
                             </p>
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
                                 <div className="flex items-center gap-2">
                                     <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -134,10 +134,10 @@ export default function Landing() {
                         <div className="glass-card rounded-2xl p-8 md:p-10 text-center shadow-sm">
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                                         Get started today
                                     </h3>
-                                    <p className="text-sm text-gray-600">
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">
                                         Everything you need to build production-ready AI agents
                                     </p>
                                 </div>

@@ -114,41 +114,44 @@ export default function Dashboard() {
             <div className="mesh-gradient" />
 
             {/* Subtle overlay for better glass effect visibility */}
-            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/20 via-white/10 to-white/30" />
+            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-white/20 via-white/10 to-white/30 dark:from-gray-900/40 dark:via-gray-900/30 dark:to-gray-900/50" />
 
             <Navbar />
 
             <div className="flex-1 flex overflow-hidden">
                 <LeftPanel activePanel={activePanel} setActivePanel={setActivePanel} />
 
-                {/* Center Area with Tabs - VS Code style */}
+                {/* Center Area with Tabs - Modern Design */}
                 <div className="flex-1 flex flex-col min-w-0">
                     {/* Tab Bar */}
-                    <div className="glass-nav flex items-center h-14 overflow-hidden">
+                    <div className="glass-nav flex items-center h-12 overflow-hidden border-b border-white/10 dark:border-white/5">
                         <div className="flex items-center h-full overflow-x-auto scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                             {tabs.map((tab) => (
                                 <div
                                     key={tab.id}
-                                    className={`group flex items-center gap-2 px-5 h-full border-r border-white/20 cursor-pointer transition-all whitespace-nowrap ${
+                                    className={`group flex items-center gap-2 px-4 h-full cursor-pointer transition-all whitespace-nowrap relative ${
                                         activeTab === tab.id
-                                            ? 'bg-gray-50/60 text-gray-900'
-                                            : 'text-gray-600 hover:bg-gray-50/30 hover:text-gray-900'
+                                            ? 'text-gray-900 dark:text-gray-100'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                                     }`}
                                     onClick={() => setActiveTab(tab.id)}
                                 >
-                                    <span className="text-sm font-semibold">{tab.title}</span>
+                                    <span className="text-sm font-medium">{tab.title}</span>
                                     {tab.closable && (
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 closeTab(tab.id);
                                             }}
-                                            className="opacity-0 group-hover:opacity-100 hover:text-red-600 transition-all ml-1"
+                                            className="opacity-0 group-hover:opacity-100 hover:text-red-600 dark:hover:text-red-400 transition-all ml-1 p-0.5 rounded"
                                         >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </button>
+                                    )}
+                                    {activeTab === tab.id && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 dark:bg-gray-100 rounded-t-full" />
                                     )}
                                 </div>
                             ))}
@@ -194,23 +197,23 @@ function PromptEditor({ prompt }) {
         <div className="flex-1 overflow-y-auto px-8 py-6">
             <div className="max-w-4xl mx-auto">
                 <div className="glass-card rounded-2xl p-6 shadow-2xl">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">{prompt?.name || 'Prompt Editor'}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{prompt?.name || 'Prompt Editor'}</h2>
                     <textarea
                         value={prompt?.prompt || ''}
                         readOnly
-                        className="w-full h-96 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 resize-none leading-relaxed font-mono"
+                        className="w-full h-96 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 dark:text-gray-100 resize-none leading-relaxed font-mono"
                         placeholder="Loading prompt..."
                     />
                     {prompt?.output_struct && (
                         <div className="mt-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Output Structure</h3>
-                            <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 overflow-x-auto font-mono">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Output Structure</h3>
+                            <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 dark:text-gray-100 overflow-x-auto font-mono">
                                 {JSON.stringify(prompt.output_struct, null, 2)}
                             </pre>
                         </div>
                     )}
-                    <div className="mt-4 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50">
-                        <p className="text-sm text-gray-700">
+                    <div className="mt-4 p-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/30">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
                             <strong>Note:</strong> Prompt editing is read-only. The API does not yet support saving changes.
                         </p>
                     </div>
@@ -226,31 +229,31 @@ function AgentConfigEditor({ agent }) {
         <div className="flex-1 overflow-y-auto px-8 py-6">
             <div className="max-w-4xl mx-auto">
                 <div className="glass-card rounded-2xl p-6 shadow-2xl">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">{agent?.name || 'Agent Configuration'}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{agent?.name || 'Agent Configuration'}</h2>
                     {agent?.description && (
-                        <p className="text-gray-700 mb-6">{agent.description}</p>
+                        <p className="text-gray-700 dark:text-gray-300 mb-6">{agent.description}</p>
                     )}
                     <div className="space-y-6">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">System Prompt</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">System Prompt</h3>
                             <textarea
                                 value={agent?.prompt || ''}
                                 readOnly
-                                className="w-full h-64 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 resize-none leading-relaxed font-mono"
+                                className="w-full h-64 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 dark:text-gray-100 resize-none leading-relaxed font-mono"
                                 placeholder="Loading prompt..."
                             />
                         </div>
                         {agent?.output_struct && (
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Output Structure</h3>
-                                <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 overflow-x-auto font-mono">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Output Structure</h3>
+                                <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 dark:text-gray-100 overflow-x-auto font-mono">
                                     {JSON.stringify(agent.output_struct, null, 2)}
                                 </pre>
                             </div>
                         )}
                     </div>
-                    <div className="mt-6 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50">
-                        <p className="text-sm text-gray-700">
+                    <div className="mt-6 p-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/30">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
                             <strong>Note:</strong> Agent configuration is read-only. The API does not yet support saving changes.
                         </p>
                     </div>

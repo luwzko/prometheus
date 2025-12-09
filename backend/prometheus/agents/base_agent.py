@@ -1,16 +1,23 @@
+from pydantic import BaseModel
+
 from prometheus.setup.config import AgentConfig
 from prometheus.prompt import AgentPrompt
 from prometheus.model import Model
+
+from typing import List, Tuple, Type
 
 class BaseAgent:
     """
     Base class from which all future agents inherit from.
     """
-    def __init__(self, agent_config: AgentConfig):
+    def __init__(self, agent_config: AgentConfig, response_model: Type[BaseModel]):
         self._agent_config = agent_config
+        self.response_model: Type[BaseModel] = response_model
 
         self.model = Model(self._agent_config.model_config_)
         self.prompt = AgentPrompt(self._agent_config)
+
+        self.conversation_history: List[Tuple]
 
     def get_model_config(self):
         """
@@ -19,7 +26,7 @@ class BaseAgent:
         """
         return self._agent_config.model_config_
 
-    def _interact(self, message: str) -> str:
+    def _interact(self, message: str) -> BaseModel:
         """
         Basic function to interact with the model as the agent.
 
@@ -29,7 +36,8 @@ class BaseAgent:
         full_prompt = self.prompt.get(message)
         response = self.model.chat(full_prompt)
 
-        return response
+        validated = self.response_model.model_validate(response)
+        return validated
 
     def execute(self, message: str):
         """

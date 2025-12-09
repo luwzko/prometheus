@@ -15,7 +15,7 @@ class Prometheus(BaseAgent):
     This is the main agent, Prometheus decides does a request need to be planned, acted on or just a response.
     """
     def __init__(self, prometheus_config: PrometheusConfig):
-        super().__init__(prometheus_config.main_agent)
+        super().__init__(prometheus_config.main_agent, response_model = PrometheusResponse)
 
         self.action_manager = ActionManager(prometheus_config.action_manager)
 
@@ -24,8 +24,7 @@ class Prometheus(BaseAgent):
         self.reflector = ReflectorAgent(prometheus_config.reflector)
 
     def execute(self, message: str) -> PrometheusOutput | None:
-        content = self._interact(message)
-        validated = PrometheusResponse.model_validate(content)
+        validated = self._interact(message)
 
         if validated is None:
             logger.error("API error incurred.")

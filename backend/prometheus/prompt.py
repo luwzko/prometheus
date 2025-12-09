@@ -52,8 +52,8 @@ class AgentPrompt:
         self._output_struct = json.loads(self._output_struct)
 
         self.api_prompt_response = APIPromptResponse()
-        self.api_prompt_response.output_struct = self._output_struct
         self.api_prompt_response.prompt = self._prompt
+        self.api_prompt_response.output_struct = self._output_struct
 
         self._initialize()
 
@@ -92,10 +92,11 @@ class AgentPrompt:
             return {"role": role, "content": content}
 
         messages = [
-            generate_message("system", self._prompt),
-            generate_message("user", user_message)
+            generate_message("system", self._prompt)
         ]
 
+
+        messages.append(generate_message("user", user_message))
         self._output_struct["messages"] = messages
 
         if rettype == str:

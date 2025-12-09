@@ -17,7 +17,7 @@ class ExecutorAgent(BaseAgent):
     An object which parses Planners output into actions and runs it.
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config)
+        super().__init__(agent_config, response_model = ExecutorContext)
 
         self.ref_pattern = re.compile(r"\{ref:([A-Za-z0-9_]+)\}")
 

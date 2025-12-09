@@ -11,13 +11,12 @@ class CodeAgent(BaseAgent):
     These kind of action agents use the same output structure but different prompts.
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config)
+        super().__init__(agent_config, response_model = ActionAgentResponse)
 
     def execute(self, task: str):
         logger.debug(f"Calling action agent CODE with {task}.")
 
-        code = self._interact(task)
-        validated = ActionAgentResponse.model_validate(code)
+        validated = self._interact(task)
 
         if validated is None:
             logger.error("API error incurred.")

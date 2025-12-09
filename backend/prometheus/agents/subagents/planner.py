@@ -12,11 +12,10 @@ class PlannerAgent(BaseAgent):
     Its used to breakdown tasks into linked or not linked actions.
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config)
+        super().__init__(agent_config, response_model = Plan)
 
-    def execute(self, task: str) -> Plan:
-        planner_response = self._interact(task)
-        plan = Plan.model_validate(planner_response)
+    def execute(self, task: str):
+        plan = self._interact(task)
 
         if plan is None:
             logger.error("API error incurred.")

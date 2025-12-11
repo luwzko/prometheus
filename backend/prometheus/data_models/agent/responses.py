@@ -8,7 +8,7 @@ class PrometheusResponse(BaseModel):
     Represents the models response, its structure is based on the schema in the output_structure.
     """
 
-    mode: str = Literal["respond", "act", "plan"]
+    mode: Literal["respond", "act", "plan"] = "respond"
     text: str = None
 
     task: Optional[str] = None

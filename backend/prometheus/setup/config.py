@@ -31,7 +31,6 @@ class AgentConfig(BaseModel):
     output_structure -> the schema how the model should respond in JSON
     """
     prompt: str
-    output_structure: str
     model_config_: ModelConfig = None
 
 class ActionManagerConfig(BaseModel):

@@ -33,23 +33,28 @@ class Model:
 
         return response
 
-    def chat(self, data: str):
+    def chat(self, data: str) -> ModelResponse:
+        """
+        Interact with the API and return validated ModelResponse.
+
+        :param data: JSON string containing the request
+        :return: ModelResponse object
+        """
+        # Make API call
         response = self._interact(data)
+        response_json = json.loads(response.text)
 
-        resp_json = json.loads(response.text)
-        api_response = ModelResponse.model_validate(resp_json)
+        # Validate response structure
+        api_response = ModelResponse.model_validate(response_json)
 
-        content: str = api_response.get_content()
+        # Check for errors
+        if not api_response.is_success():
+            error = api_response.get_error()
+            if error:
+                logger.error(f"API returned: {error[0]} with error code: {error[1]}")
+            else:
+                logger.error("API call failed with no error details")
+            raise Exception("API call failed")
 
-        if type(content) == str:
-            content: dict = json.loads(content)
-
-        elif type(content) == tuple:
-            logger.error(f"API returned: {content[0]} with error code: {content[1]}.")
-            return None
-        else:
-            logger.error("Something went wrong...")
-            return None
-
-        logger.debug("API returned non error response.")
-        return content
+        logger.debug("API returned successful response")
+        return api_response

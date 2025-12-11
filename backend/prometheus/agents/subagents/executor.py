@@ -47,8 +47,8 @@ class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
             step: Plan.PlanningSteps
             execution_step = ExecutorContext.ExecutionSteps()
 
-            logger.debug(f"Message: {step.message}")
-            logger.debug(f"Control: {step.control}")
+            self.logger.debug(f"Message: {step.message}")
+            self.logger.debug(f"Control: {step.control}")
 
             execution_step.message = step.message
             execution_step.intent = step.intent
@@ -69,6 +69,6 @@ class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
             context.add_step(execution_step)
 
             if action_output is not None:
-                logger.debug("Successfully ran the action.")
+                self.logger.debug("Successfully ran the action.")
 
         return context

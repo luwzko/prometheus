@@ -14,12 +14,12 @@ class CodeAgent(BaseAgent[ActionAgentResponse, ActionAgentResponse]):
         super().__init__(agent_config, ActionAgentResponse)
 
     def execute(self, task: str):
-        logger.debug(f"Calling action agent CODE with {task}.")
+        self.logger.debug(f"Calling action agent CODE with {task}.")
 
         validated = self._interact(task)
 
         if validated is None:
-            logger.error("API error incurred.")
+            self.logger.error("API error incurred.")
             raise Exception("API error incurred.")
 
         return validated.response

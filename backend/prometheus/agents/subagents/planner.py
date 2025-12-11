@@ -18,7 +18,7 @@ class PlannerAgent(BaseAgent[Plan, Plan]):
         plan = self._interact(task)
 
         if plan is None:
-            logger.error("API error incurred.")
+            self.logger.error("API error incurred.")
             raise Exception("API error incurred.")
 
         return plan

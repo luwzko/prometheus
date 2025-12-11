@@ -14,7 +14,7 @@ class ReflectorAgent(BaseAgent[Reflection, Reflection]):
         reflection = self._interact(executed_context.model_dump_json())
 
         if reflection is None:
-            logger.error("API error incurred.")
+            self.logger.error("API error incurred.")
             raise Exception("API error incurred.")
 
         return reflection

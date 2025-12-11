@@ -1,6 +1,6 @@
 {
     "model": {
-        "name": "google/gemini-2.0-flash-001",
+        "name": "anthropic/claude-3.7-sonnet",
         "base_url": "https://openrouter.ai/api/v1/chat/completions",
         "max_tokens": 4096,
         "temperature": 0.2
@@ -8,32 +8,26 @@
 
     "prometheus": {
         "main_agent": {
-            "prompt": "resources/prompts/system_prompt.txt",
-            "output_structure": "resources/prompts/output_structure.json"
+            "prompt": "resources/prompts/system_prompt.txt"
         },
 
         "planner": {
-            "prompt": "resources/prompts/planner/system_prompt.txt",
-            "output_structure": "resources/prompts/planner/output_structure.json"
+            "prompt": "resources/prompts/planner/system_prompt.txt"
         },
 
         "executor": {
-            "prompt": "resources/prompts/executor/system_prompt.txt",
-            "output_structure": "resources/prompts/executor/output_structure.json"
+            "prompt": "resources/prompts/executor/system_prompt.txt"
         },
 
         "reflector": {
-            "prompt": "resources/prompts/reflector/system_prompt.txt",
-            "output_structure": "resources/prompts/reflector/output_structure.json"
+            "prompt": "resources/prompts/reflector/system_prompt.txt"
         },
         "action_manager": {
             "think_agent": {
-                "prompt": "resources/prompts/action_files/think_prompt.txt",
-                "output_structure": "resources/prompts/action_files/action_structure.json"
+                "prompt": "resources/prompts/action_files/think_prompt.txt"
             },
             "code_agent": {
-                "prompt": "resources/prompts/action_files/code_prompt.txt",
-                "output_structure": "resources/prompts/action_files/action_structure.json"
+                "prompt": "resources/prompts/action_files/code_prompt.txt"
             }
         }
     }

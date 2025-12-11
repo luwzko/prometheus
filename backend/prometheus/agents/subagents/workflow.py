@@ -1,27 +1,28 @@
-from prometheus.agents.base_agent import BaseAgent
-from prometheus.setup.config import AgentConfig
-
-from prometheus.data_models.action import ActionOutput
-from prometheus.data_models.agent import Plan, ExecutorContext
-
-from prometheus.actions.action_manager import run
-
 import re
 
-import logging
-logger = logging.getLogger("prometheus.subagents.executor")
+from prometheus.actions.action_manager import run
+from prometheus.agents.base_agent import BaseAgent
+from prometheus.data_models.action import ActionOutput
+from prometheus.data_models.agent import ExecutorContext
+from prometheus.setup.config import AgentConfig
 
-class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
+from prometheus.data_models.agent.subagent import Plan
+
+import logging
+logger = logging.getLogger("prometheus.subagents.workflow")
+
+class WorkflowAgent(BaseAgent[Plan, ExecutorContext]):
     """
-    Subagent Executor, it has an output structure and prompt, but they are not used.
-    An object which parses Planners output into actions and runs it.
+    Subagent Workflow, it has a special output structure and prompt.
+    It's used to breakdown tasks into linked or not linked actions.
+    Then those broken down tasks get executed and fed into executor context
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, ExecutorContext)
+        super().__init__(agent_config, Plan)
 
         self.ref_pattern = re.compile(r"\{ref:([A-Za-z0-9_]+)\}")
 
-    def execute(self, plan: Plan):
+    def execute_plan(self, plan: Plan):
         """
         A plan is basically a list of steps, each step has fields:
         message, intent, action_request and control
@@ -33,15 +34,16 @@ class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
 
         :return context:
         """
-        context = ExecutorContext()
-
         def replace_refs(arg):
+            """Replaces any references in arguments with the context using that ref."""
             def repl(match: re.Match):
                 name = match.group(1)
                 value = context[name].action_output.result
                 return str(value)
 
             return self.ref_pattern.sub(repl, arg)
+
+        context = ExecutorContext()
 
         for step in plan:
             step: Plan.PlanningSteps
@@ -64,6 +66,7 @@ class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
                     arg.value = replace_refs(arg.value)
 
             action_output = run(step.action_request)
+
             execution_step.action_output = action_output
 
             context.add_step(execution_step)
@@ -72,3 +75,14 @@ class ExecutorAgent(BaseAgent[ExecutorContext, ExecutorContext]):
                 self.logger.debug("Successfully ran the action.")
 
         return context
+
+    def execute(self, task: str):
+        plan = self._interact(task)
+
+        if plan is None:
+            self.logger.error("API error incurred.")
+            raise Exception("API error incurred.")
+
+        executed = self.execute_plan(plan)
+
+        return executed

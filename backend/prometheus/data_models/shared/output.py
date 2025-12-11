@@ -17,7 +17,6 @@ class PrometheusOutput(BaseContext):
     action_output: Optional[ActionOutput] = None
 
     task: Optional[str] = None
-    plan: Optional[Plan] = None
 
     executed: Optional[ExecutorContext] = None
     reflection: Optional[Reflection] = None

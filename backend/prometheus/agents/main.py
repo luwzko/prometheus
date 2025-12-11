@@ -1,6 +1,6 @@
 from prometheus.setup.config import PrometheusConfig
 from prometheus.agents.base_agent import BaseAgent
-from prometheus.agents.subagents import PlannerAgent, ExecutorAgent, ReflectorAgent
+from prometheus.agents.subagents import WorkflowAgent, ReflectorAgent
 
 from prometheus.data_models.agent import PrometheusResponse
 from prometheus.data_models.shared import ModelOutput, PrometheusOutput, UserInput
@@ -16,8 +16,7 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
 
         self.action_manager = ActionManager(prometheus_config.action_manager)
 
-        self.planner = PlannerAgent(prometheus_config.planner)
-        self.executor = ExecutorAgent(prometheus_config.executor)
+        self.workflow = WorkflowAgent(prometheus_config.workflow)
         self.reflector = ReflectorAgent(prometheus_config.reflector)
 
     def execute(self, message: str) -> PrometheusOutput | None:
@@ -44,15 +43,12 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
             case "plan":
                 prometheus_output.task = validated.task
 
-                # first plan out the task
-                plans = self.planner.execute(validated.task)
-                # execute it
-                executor_context = self.executor.execute(plans)
+                # plan and execute
+                executor_context = self.workflow.execute(validated.task)
                 # now reflect on it
                 reflection_context = self.reflector.execute(executor_context)
 
                 # add all generated context to the prometheus output
-                prometheus_output.plan = plans
                 prometheus_output.executed = executor_context
                 prometheus_output.reflection = reflection_context
 

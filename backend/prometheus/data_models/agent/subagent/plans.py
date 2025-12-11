@@ -5,7 +5,7 @@ from prometheus.data_models.action import ActionRequest
 
 class Plan(BaseModel):
     """
-    Represents the planner agents response, its structure is based on the schema in the output_structure.
+    Represents the workflow agents response, its structure is based on the schema in the output_structure.
     """
     class PlanningSteps(BaseModel):
 

@@ -65,7 +65,7 @@ class BaseAgent(Generic[TResponse, TOutput]):
             self.logger.error(f"Failed to validate response: {e}")
             raise
 
-    def _interact(self, message: str) -> BaseModel:
+    def _interact(self, message: str) -> TResponse:
         """
         Basic function to interact with the model as the agent.
 

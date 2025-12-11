@@ -11,12 +11,8 @@
             "prompt": "resources/prompts/system_prompt.txt"
         },
 
-        "planner": {
+        "workflow": {
             "prompt": "resources/prompts/planner/system_prompt.txt"
-        },
-
-        "executor": {
-            "prompt": "resources/prompts/executor/system_prompt.txt"
         },
 
         "reflector": {

@@ -47,8 +47,7 @@ class PrometheusConfig(BaseModel):
     """
     main_agent: AgentConfig
 
-    planner: AgentConfig
-    executor: AgentConfig
+    workflow: AgentConfig
     reflector: AgentConfig
 
     action_manager: ActionManagerConfig

@@ -54,17 +54,10 @@ class AgentPrompt:
             # if the prompt in agent_config is not a file but rather a prompt
             else: self._prompt = self._agent_config.prompt
 
-            # if self._agent_config.output_structure.endswith(".json"):
-            #     with open(self._agent_config.output_structure, "r") as f:
-            #         self._output_struct = "".join(f.readlines())
-            #
-            # # if the output structure in agent_config is not a file but rather a structure
-            # else: self._output_struct = self._agent_config.output_structure
-
-            logger.debug("Successfully read prompt file and output structure.")
+            logger.debug("Successfully read prompt file.")
 
         except FileNotFoundError as e:
-            logger.error("Check config, prompt file or output structure fields must be valid files.")
+            logger.error(f"Check config, prompt file must be a valid file: {e}")
             exit(1)
 
         self._add_details()

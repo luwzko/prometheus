@@ -8,22 +8,22 @@
 
     "prometheus": {
         "main_agent": {
-            "prompt": "resources/prompts/system_prompt.txt"
+            "prompt": "resources/prompts/prometheus_prompt.txt"
         },
 
         "workflow": {
-            "prompt": "resources/prompts/planner/system_prompt.txt"
+            "prompt": "resources/prompts/workflow_prompt.txt"
         },
 
         "reflector": {
-            "prompt": "resources/prompts/reflector/system_prompt.txt"
+            "prompt": "resources/prompts/reflector_prompt.txt"
         },
         "action_manager": {
             "think_agent": {
-                "prompt": "resources/prompts/action_files/think_prompt.txt"
+                "prompt": "resources/prompts/action_agents/think_prompt.txt"
             },
             "code_agent": {
-                "prompt": "resources/prompts/action_files/code_prompt.txt"
+                "prompt": "resources/prompts/action_agents/code_prompt.txt"
             }
         }
     }

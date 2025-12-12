@@ -68,7 +68,6 @@ class WorkflowAgent(BaseAgent[Plan, ExecutorContext]):
             action_output = run(step.action_request)
 
             execution_step.action_output = action_output
-
             context.add_step(execution_step)
 
             if action_output is not None:
@@ -84,5 +83,4 @@ class WorkflowAgent(BaseAgent[Plan, ExecutorContext]):
             raise Exception("API error incurred.")
 
         executed = self.execute_plan(plan)
-
         return executed

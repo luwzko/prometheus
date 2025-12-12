@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import TypeAlias
+from typing import TypeAlias, Union, Literal
 import json
 
 from dotenv import load_dotenv
 import os
 
 import logging
+
 logger = logging.getLogger("prometheus.config")
 
 Config: TypeAlias = dict[str, str]
@@ -26,20 +27,16 @@ class ModelConfig(BaseModel):
 
 class AgentConfig(BaseModel):
     """
-    AgentConfig is a class which contains all needed information for the model, also contains model_config
+    AgentConfig is a class which contains all needed information for the model.
     prompt -> the agents prompt
-    output_structure -> the schema how the model should respond in JSON
+    model_config_ can be "inherit", new model_config object or a dict with overwritten settings.
     """
     prompt: str
-    model_config_: ModelConfig = None
+    model_config_: Union[Literal["inherit"], ModelConfig, dict] = "inherit"
 
 class ActionManagerConfig(BaseModel):
     think_agent: AgentConfig
     code_agent: AgentConfig
-
-    def set_model_config(self, model_config: ModelConfig):
-        self.think_agent.model_config_ = model_config
-        self.code_agent.model_config_ = model_config
 
 class PrometheusConfig(BaseModel):
     """
@@ -52,18 +49,36 @@ class PrometheusConfig(BaseModel):
 
     action_manager: ActionManagerConfig
 
-    def set_model_config(self, model_config: ModelConfig):
+    def _resolve_model_config(self, agent_config: AgentConfig, global_model_config: ModelConfig):
         """
-        Loops over the dictionary describing all attrs of the class.
-        Sets each attr model_config to the model config passed to the method
-        :param model_config:
+        Determines the value of model config based on what is supplied in the config file.
+        :param agent_config:
+        :param global_model_config:
         :return:
         """
-        for var, val in self.__dict__.items():
-            if type(val) == AgentConfig:
-                val.model_config_ = model_config
+        # inherit config
+        if agent_config.model_config_ == "inherit":
+            return global_model_config.model_copy()
 
-            else: val.set_model_config(model_config)
+        # new separate config
+        elif isinstance(agent_config.model_config_, ModelConfig):
+            return agent_config.model_config_
+
+        # merge configs
+        elif isinstance(agent_config.model_config_, dict):
+            merged = global_model_config.model_dump()
+            merged.update(agent_config.model_config_)
+
+            return ModelConfig(**merged)
+
+    def init_model_cfg(self, global_model_config: ModelConfig):
+        self.main_agent.model_config_ = self._resolve_model_config(self.main_agent, global_model_config)
+        self.workflow.model_config_ = self._resolve_model_config(self.workflow, global_model_config)
+        self.reflector.model_config_ = self._resolve_model_config(self.reflector, global_model_config)
+
+
+        self.action_manager.code_agent.model_config_ = self._resolve_model_config(self.action_manager.code_agent, global_model_config)
+        self.action_manager.think_agent.model_config_ = self._resolve_model_config(self.action_manager.think_agent, global_model_config)
 
 class MainConfig:
     """
@@ -90,8 +105,11 @@ class MainConfig:
 
         self._config = json.loads(self._config_text)
 
-        self.model_config = ModelConfig(api_key = self._API_KEY, **self._config["model"])
+        self.global_model_config = ModelConfig(api_key = self._API_KEY, **self._config["model"])
         self.prometheus_config = PrometheusConfig(**self._config["prometheus"])
 
-        self.prometheus_config.set_model_config(self.model_config)
+        self.prometheus_config.init_model_cfg(self.global_model_config)
+
         logger.debug("Successfully initialized main config.")
+
+

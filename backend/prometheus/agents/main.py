@@ -1,4 +1,4 @@
-from prometheus.setup.config import PrometheusConfig
+from prometheus.setup.config import PrometheusConfig, MainConfig
 from prometheus.agents.base_agent import BaseAgent
 from prometheus.agents.subagents import WorkflowAgent, ReflectorAgent
 
@@ -13,11 +13,12 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
     """
     def __init__(self, prometheus_config: PrometheusConfig):
         super().__init__(prometheus_config.main_agent, PrometheusResponse, PrometheusOutput)
+        self._config: MainConfig
+        self.prometheus_config = prometheus_config
 
-        self.action_manager = ActionManager(prometheus_config.action_manager)
-
-        self.workflow = WorkflowAgent(prometheus_config.workflow)
-        self.reflector = ReflectorAgent(prometheus_config.reflector)
+        self.workflow = WorkflowAgent(self.prometheus_config.workflow)
+        self.reflector = ReflectorAgent(self.prometheus_config.reflector)
+        self.action_manager = ActionManager(self.prometheus_config.action_manager)
 
     def execute(self, message: str) -> PrometheusOutput | None:
         user_input = UserInput(content = message)

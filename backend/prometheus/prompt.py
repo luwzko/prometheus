@@ -2,15 +2,11 @@ from pydantic import BaseModel
 
 from prometheus.setup.config import AgentConfig
 
-from prometheus.data_models.api import APIPromptResponse
-
 from typing import TypeAlias, Dict, Type, List
 import json
 
 import logging
 logger = logging.getLogger("prometheus.prompt")
-
-OutputStruct: TypeAlias = Dict[str, str]
 
 def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond"):
     """
@@ -38,30 +34,16 @@ class AgentPrompt:
         self._agent_config = agent_config
         self._response_model: BaseModel = response_model
 
-        self._prompt: str
-        self._output_struct: OutputStruct
+        self._prompt: str = self._agent_config.prompt_content
+        self._response_format: Dict[str, str]
 
         from prometheus.actions.action_manager import get_action_details
         self.variables = {
             "{action_data}": get_action_details()
         }
 
-        try:
-            if self._agent_config.prompt.endswith(".txt"):
-                with open(self._agent_config.prompt, "r") as f:
-                    self._prompt = "".join(f.readlines())
-
-            # if the prompt in agent_config is not a file but rather a prompt
-            else: self._prompt = self._agent_config.prompt
-
-            logger.debug("Successfully read prompt file.")
-
-        except FileNotFoundError as e:
-            logger.error(f"Check config, prompt file must be a valid file: {e}")
-            exit(1)
-
         self._add_details()
-        self._output_struct =\
+        self._response_format =\
             {
                 "model": "",
                 "messages": [],
@@ -74,10 +56,6 @@ class AgentPrompt:
                 "max_tokens": 0
             }
 
-        self.api_prompt_response = APIPromptResponse()
-        self.api_prompt_response.prompt = self._prompt
-        self.api_prompt_response.output_struct = self._output_struct
-
         self._initialize()
 
     def _initialize(self) -> None:
@@ -88,11 +66,13 @@ class AgentPrompt:
         It sets how the model should respond using `tools`.
         :return None:
         """
-        self._output_struct["model"] = self._agent_config.model_config_.name
-        self._output_struct["max_tokens"] = self._agent_config.model_config_.max_tokens
-        self._output_struct["temperature"] = self._agent_config.model_config_.temperature
+        self._response_format["model"] = self._agent_config.model_config_.name
+        self._response_format["max_tokens"] = self._agent_config.model_config_.max_tokens
+        self._response_format["temperature"] = self._agent_config.model_config_.temperature
 
-        self._output_struct["tools"] = [_generate_tool_schema(self._response_model)]
+        self._response_format["tools"] = [_generate_tool_schema(self._response_model)]
+
+        self._agent_config.load_response_format(self._response_format)
 
     def _add_details(self):
         """
@@ -121,6 +101,6 @@ class AgentPrompt:
             generate_message("user", user_message)
         ]
 
-        self._output_struct["messages"] = messages
+        self._response_format["messages"] = messages
 
-        return json.dumps(self._output_struct)
+        return json.dumps(self._response_format)

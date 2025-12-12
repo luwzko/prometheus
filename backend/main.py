@@ -1,4 +1,4 @@
-from prometheus.agents.factory import get_prometheus
+from prometheus.factory import get_prometheus
 from prometheus.agents.main import Prometheus
 from prometheus.setup import setup_logging, parse_arguments
 setup_logging()
@@ -34,6 +34,7 @@ def main():
 
     config_file: str = args.config
     use_api: bool = args.api
+
 
     prometheus: Prometheus = get_prometheus(config_file)
 

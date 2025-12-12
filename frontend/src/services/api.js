@@ -92,29 +92,15 @@ export async function sendChatMessage(message) {
 }
 
 /**
- * Get agent prompt and output structure
+ * Get agent prompt and output structure (DEPRECATED - use getAgentConfig instead)
+ * @deprecated Use getAgentConfig() from /api/config/{agent_name} instead
  * @param {string} agentName - Agent name ('main', 'planner', 'executor', 'reflector')
  * @returns {Promise<APIPromptResponse>}
  */
 export async function getAgentPrompt(agentName) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/prompts/${agentName}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Error fetching prompt for ${agentName}:`, error);
-        throw error;
-    }
+    console.warn('getAgentPrompt is deprecated. Use getAgentConfig instead.');
+    // Fallback to new endpoint
+    return getAgentConfig(agentName);
 }
 
 /**
@@ -143,12 +129,12 @@ export async function getAvailableActions() {
 }
 
 /**
- * Get model configuration
- * @returns {Promise<ModelConfigResponse>}
+ * Get all agents configuration
+ * @returns {Promise<ConfigResponse>}
  */
-export async function getModelConfig() {
+export async function getAllAgentsConfig() {
     try {
-        const response = await fetch(`${API_BASE_URL}/model_config`, {
+        const response = await fetch(`${API_BASE_URL}/config/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -161,6 +147,48 @@ export async function getModelConfig() {
 
         const data = await response.json();
         return data;
+    } catch (error) {
+        console.error('Error fetching all agents config:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get specific agent configuration
+ * @param {string} agentName - Agent name (e.g., 'main_agent', 'workflow', 'reflector')
+ * @returns {Promise<AgentConfigResponse>}
+ */
+export async function getAgentConfig(agentName) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/config/${agentName}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Error fetching agent config for ${agentName}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Get model configuration (DEPRECATED - use getAllAgentsConfig instead)
+ * @deprecated Use getAllAgentsConfig() from /api/config/ instead
+ * @returns {Promise<ModelConfigResponse>}
+ */
+export async function getModelConfig() {
+    console.warn('getModelConfig is deprecated. Use getAllAgentsConfig instead.');
+    try {
+        const allConfig = await getAllAgentsConfig();
+        return allConfig.global_model_config || {};
     } catch (error) {
         console.error('Error fetching model config:', error);
         throw error;

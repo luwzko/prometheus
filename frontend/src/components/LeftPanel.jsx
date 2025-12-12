@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { getAvailableActions, getModelConfig } from "../services/api";
+import { getAvailableActions } from "../services/api";
 
 export default function LeftPanel({ activePanel, setActivePanel }) {
     const panels = [
-        { id: "config", label: "Config" },
+        { id: "config", label: "Workflows" },
         { id: "actions", label: "Actions" },
-        { id: "history", label: "History" },
     ];
 
     return (
@@ -34,72 +33,20 @@ export default function LeftPanel({ activePanel, setActivePanel }) {
             <div className="flex-1 overflow-y-auto p-6">
                 {activePanel === "config" && <ConfigPanel />}
                 {activePanel === "actions" && <ActionsPanel />}
-                {activePanel === "history" && <HistoryPanel />}
             </div>
         </div>
     );
 }
 
 function ConfigPanel() {
-    const [modelConfig, setModelConfig] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const loadModelConfig = async () => {
-            try {
-                const config = await getModelConfig();
-                setModelConfig(config);
-                setError(null);
-            } catch (error) {
-                console.error('Error loading model config:', error);
-                setError('Unable to load model config. Backend may be offline.');
-                setModelConfig(null);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        
-        loadModelConfig();
-    }, []);
-
-    if (isLoading) {
-        return <div className="text-sm text-gray-600 dark:text-gray-400">Loading model config...</div>;
-    }
-
-    if (error) {
-        return (
-            <div className="space-y-2">
-                <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Make sure the backend is running</div>
-            </div>
-        );
-    }
-
-    if (!modelConfig) {
-        return <div className="text-sm text-gray-600 dark:text-gray-400">No model config available</div>;
-    }
-
     return (
-        <div className="space-y-5">
-            <div>
-                <label className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-2 block uppercase tracking-wide">Model Name</label>
-                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {modelConfig.name || 'N/A'}
+        <div className="flex items-center justify-center h-full">
+            <div className="text-center space-y-2">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Configuration moved to right sidebar
                 </div>
-            </div>
-
-            <div>
-                <label className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-2 block uppercase tracking-wide">Temperature</label>
-                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {modelConfig.temperature !== undefined ? modelConfig.temperature.toFixed(2) : 'N/A'}
-                </div>
-            </div>
-
-            <div>
-                <label className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-2 block uppercase tracking-wide">Max Tokens</label>
-                <div className="w-full glass-input rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {modelConfig.max_tokens !== undefined ? modelConfig.max_tokens.toLocaleString() : 'N/A'}
+                <div className="text-xs text-gray-500 dark:text-gray-500">
+                    View global config and agents there
                 </div>
             </div>
         </div>
@@ -291,31 +238,3 @@ function ActionsPanel() {
     );
 }
 
-function HistoryPanel() {
-    const history = [
-        { time: "2 minutes ago", query: "What is the capital of France?", type: "chat" },
-        { time: "5 minutes ago", query: "Explain quantum computing", type: "chat" },
-        { time: "10 minutes ago", query: "How does RAG work?", type: "chat" },
-        { time: "1 hour ago", query: "Analyze sales data", type: "task" }
-    ];
-
-    return (
-        <div className="space-y-2">
-            {history.map((item, index) => (
-                <div key={index} className="glass-card glass-hover rounded-xl p-3 shadow-sm cursor-pointer hover:bg-white/10 dark:hover:bg-white/5 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">{item.time}</div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            item.type === 'chat' 
-                                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
-                                : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-                        }`}>
-                            {item.type}
-                        </span>
-                    </div>
-                    <div className="text-sm text-gray-900 dark:text-gray-100 font-medium line-clamp-2">{item.query}</div>
-                </div>
-            ))}
-        </div>
-    );
-}

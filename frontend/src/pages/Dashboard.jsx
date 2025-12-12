@@ -4,7 +4,7 @@ import ChatArea from "../components/ChatArea";
 import InputBar from "../components/InputBar";
 import LeftPanel from "../components/LeftPanel";
 import RightSidebar from "../components/RightSidebar";
-import { sendChatMessage, formatPrometheusResponse, getAgentPrompt } from "../services/api";
+import { sendChatMessage, formatPrometheusResponse } from "../services/api";
 
 export default function Dashboard() {
     const [messages, setMessages] = useState([
@@ -225,33 +225,82 @@ function PromptEditor({ prompt }) {
 
 // Agent Config Editor (read-only for now)
 function AgentConfigEditor({ agent }) {
+    if (agent?.error) {
+        return (
+            <div className="flex-1 overflow-y-auto px-8 py-6">
+                <div className="max-w-4xl mx-auto">
+                    <div className="glass-card rounded-2xl p-6 shadow-2xl">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{agent?.name || 'Agent Configuration'}</h2>
+                        <div className="p-4 bg-red-50/50 dark:bg-red-900/20 rounded-xl border border-red-200/50 dark:border-red-800/30">
+                            <p className="text-sm text-red-700 dark:text-red-300">{agent.error}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const modelConfig = agent?.model_config || {};
+    const promptFile = agent?.prompt || 'N/A';
+    const promptContent = agent?.prompt_content || '';
+    const responseFormat = agent?.response_format || null;
+
     return (
         <div className="flex-1 overflow-y-auto px-8 py-6">
             <div className="max-w-4xl mx-auto">
                 <div className="glass-card rounded-2xl p-6 shadow-2xl">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{agent?.name || 'Agent Configuration'}</h2>
-                    {agent?.description && (
-                        <p className="text-gray-700 dark:text-gray-300 mb-6">{agent.description}</p>
-                    )}
+                    
                     <div className="space-y-6">
+                        {/* Model Config */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">System Prompt</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Model Config</h3>
+                            <div className="glass-input rounded-xl px-5 py-4 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Model:</span>
+                                    <span className="text-sm text-gray-900 dark:text-gray-100 font-mono">{modelConfig.name || 'N/A'}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Temperature:</span>
+                                    <span className="text-sm text-gray-900 dark:text-gray-100">{modelConfig.temperature !== undefined ? modelConfig.temperature.toFixed(2) : 'N/A'}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Max Tokens:</span>
+                                    <span className="text-sm text-gray-900 dark:text-gray-100">{modelConfig.max_tokens !== undefined ? modelConfig.max_tokens.toLocaleString() : 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Prompt File */}
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Prompt File</h3>
+                            <div className="glass-input rounded-xl px-5 py-4">
+                                <div className="text-sm text-gray-900 dark:text-gray-100 font-mono break-all">{promptFile}</div>
+                            </div>
+                        </div>
+
+                        {/* Prompt Content */}
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Prompt Content</h3>
                             <textarea
-                                value={agent?.prompt || ''}
+                                value={promptContent}
                                 readOnly
-                                className="w-full h-64 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 dark:text-gray-100 resize-none leading-relaxed font-mono"
-                                placeholder="Loading prompt..."
+                                className="w-full h-96 glass-input rounded-xl px-5 py-4 text-sm text-gray-900 dark:text-gray-100 resize-none leading-relaxed font-mono"
+                                placeholder="No prompt content available"
                             />
                         </div>
-                        {agent?.output_struct && (
+
+                        {/* Response Format */}
+                        {responseFormat && (
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Output Structure</h3>
-                                <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 dark:text-gray-100 overflow-x-auto font-mono">
-                                    {JSON.stringify(agent.output_struct, null, 2)}
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Response Format</h3>
+                                <pre className="glass-input rounded-xl px-5 py-4 text-xs text-gray-900 dark:text-gray-100 overflow-x-auto font-mono max-h-96 overflow-y-auto">
+                                    {JSON.stringify(responseFormat, null, 2)}
                                 </pre>
                             </div>
                         )}
                     </div>
+
                     <div className="mt-6 p-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/30">
                         <p className="text-sm text-gray-700 dark:text-gray-300">
                             <strong>Note:</strong> Agent configuration is read-only. The API does not yet support saving changes.

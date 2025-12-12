@@ -8,7 +8,7 @@ export default function Navbar() {
             <nav className="flex items-center justify-between px-6 py-4">
                 {/* Logo */}
                 <Link to="/" className="flex items-center group">
-                    <span className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100" style={{fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"}}>
+                    <span className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100 uppercase" style={{fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif", letterSpacing: "0.05em"}}>
                         Prometheus
                     </span>
                 </Link>

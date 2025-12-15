@@ -5,10 +5,10 @@ from prometheus.data_models.agent.subagent import *
 from typing import Optional
 
 class UserInput(BaseContext):
-    content: str
+    content: str | None = None
 
 class ModelOutput(BaseContext):
-    content: str
+    content: str | None = None
 
 class PrometheusOutput(BaseContext):
     mode: Optional[str] = None
@@ -18,5 +18,5 @@ class PrometheusOutput(BaseContext):
 
     task: Optional[str] = None
 
-    executed: Optional[ExecutorContext] = None
+    executed: Optional[ExecutedWorkflow] = None
     reflection: Optional[Reflection] = None

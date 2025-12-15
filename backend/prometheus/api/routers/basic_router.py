@@ -1,15 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 
-from prometheus.agents.base_agent import BaseAgent
-from prometheus.agents.main import Prometheus
 from prometheus.factory import get_prometheus
-
 from prometheus.actions.action_manager import ActionManager
-
 from prometheus.data_models.shared import PrometheusOutput
-from prometheus.data_models.api import APIPromptResponse, ModelConfigResponse
-
 from prometheus.data_models.action import Action
 
 router = APIRouter()
@@ -29,6 +23,7 @@ async def chat(message: str):
 
         return output
     except HTTPException as e:
+
         raise HTTPException(status_code = 500, detail = str(e))
 
 @router.get("/actions", response_model = List[Action])
@@ -41,4 +36,5 @@ async def get_actions():
         return list(ActionManager.ACTION_REGISTRY.keys())
 
     except HTTPException as e:
+
         raise HTTPException(status_code = 500, detail = str(e))

@@ -1,4 +1,3 @@
-from prometheus.setup.config import PrometheusConfig, MainConfig
 from prometheus.agents.base_agent import BaseAgent
 from prometheus.agents.subagents import WorkflowAgent, ReflectorAgent
 
@@ -6,6 +5,7 @@ from prometheus.data_models.agent import PrometheusResponse
 from prometheus.data_models.shared import ModelOutput, PrometheusOutput, UserInput
 
 from prometheus.actions.action_manager import run, ActionManager
+from prometheus.config.config import PrometheusConfig, MainConfig
 
 class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
     """
@@ -18,6 +18,7 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
 
         self.workflow = WorkflowAgent(self.prometheus_config.workflow)
         self.reflector = ReflectorAgent(self.prometheus_config.reflector)
+
         self.action_manager = ActionManager(self.prometheus_config.action_manager)
 
     def execute(self, message: str) -> PrometheusOutput | None:
@@ -31,32 +32,34 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
         prometheus_output: PrometheusOutput = PrometheusOutput()
 
         prometheus_output.mode = validated.mode
-        prometheus_output.text = ModelOutput.model_validate({"content": validated.text})
+        prometheus_output.text = ModelOutput(content = validated.text)
 
         self.logger.debug(f"Prometheus decided on running: {validated.mode}")
 
+        # handle mode specific interactions
         match validated.mode:
-            case "respond": ...
+            case "respond": pass
             case "act":
                 action_output = run(validated.action_request)
                 prometheus_output.action_output = action_output
 
             case "plan":
                 prometheus_output.task = validated.task
-
                 # plan and execute
                 executor_context = self.workflow.execute(validated.task)
-                # now reflect on it
-                reflection_context = self.reflector.execute(executor_context)
-
                 # add all generated context to the prometheus output
                 prometheus_output.executed = executor_context
-                prometheus_output.reflection = reflection_context
 
             case _:
-
                 self.logger.warning("Prometheus hallucinated response mode.")
                 return None
 
+        # if the mode is either act or plan, reflect on prometheus output
+        if validated.mode in ["act", "plan"]:
+            # calling the reflector agent
+            reflection_context = self.reflector.execute(prometheus_output)
+            prometheus_output.reflection = reflection_context
+
+        print(prometheus_output.model_dump_json())
         self.conversation_history.add_to_history(user_input, prometheus_output)
         return prometheus_output

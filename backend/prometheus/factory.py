@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from prometheus.agents.main import Prometheus
-from prometheus.setup.config import MainConfig
+from prometheus.config.config import MainConfig
 
 @lru_cache(maxsize = 1)
 def get_prometheus(config_file: str | None = None):

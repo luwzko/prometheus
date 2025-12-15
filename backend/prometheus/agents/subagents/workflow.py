@@ -1,28 +1,22 @@
-import re
-
 from prometheus.actions.action_manager import run
 from prometheus.agents.base_agent import BaseAgent
 from prometheus.data_models.action import ActionOutput
-from prometheus.data_models.agent import ExecutorContext
-from prometheus.setup.config import AgentConfig
+from prometheus.data_models.agent import ExecutedWorkflow, PlannedWorkflow
+from prometheus.config.config import AgentConfig
 
-from prometheus.data_models.agent.subagent import Plan
-
-import logging
-logger = logging.getLogger("prometheus.subagents.workflow")
-
-class WorkflowAgent(BaseAgent[Plan, ExecutorContext]):
+import re
+class WorkflowAgent(BaseAgent[PlannedWorkflow, ExecutedWorkflow]):
     """
     Subagent Workflow, it has a special output structure and prompt.
     It's used to breakdown tasks into linked or not linked actions.
     Then those broken down tasks get executed and fed into executor context
     """
     def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, Plan)
+        super().__init__(agent_config, PlannedWorkflow)
 
         self.ref_pattern = re.compile(r"\{ref:([A-Za-z0-9_]+)\}")
 
-    def execute_plan(self, plan: Plan):
+    def execute_plan(self, plan: PlannedWorkflow):
         """
         A plan is basically a list of steps, each step has fields:
         message, intent, action_request and control
@@ -43,11 +37,11 @@ class WorkflowAgent(BaseAgent[Plan, ExecutorContext]):
 
             return self.ref_pattern.sub(repl, arg)
 
-        context = ExecutorContext()
+        context = ExecutedWorkflow()
 
         for step in plan:
-            step: Plan.PlanningSteps
-            execution_step = ExecutorContext.ExecutionSteps()
+            step: PlannedWorkflow.PlanningSteps
+            execution_step = ExecutedWorkflow.ExecutionSteps()
 
             self.logger.debug(f"Message: {step.message}")
             self.logger.debug(f"Control: {step.control}")
@@ -77,6 +71,7 @@ class WorkflowAgent(BaseAgent[Plan, ExecutorContext]):
 
     def execute(self, task: str):
         plan = self._interact(task)
+        print(plan)
 
         if plan is None:
             self.logger.error("API error incurred.")

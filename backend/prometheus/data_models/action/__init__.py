@@ -13,16 +13,16 @@ class Action(BaseModel):
         A single argument signature, describes argument name and type.
         for example. x: str = ArgumentSignature(arg_name = "x", arg_type = str)
         """
-        arg_name: str
-        arg_type: str
+        arg_name: str | None = None
+        arg_type: str | None = None
 
         def __str__(self):
             return f"{self.arg_name}: {self.arg_type}"
 
-    name: str
-    description: str
-    variable: str
-    arguments_sig: Optional[List[ArgumentSignature]]
+    name: str | None = None
+    description: str | None = None
+    variable: str | None = None
+    arguments_sig: Optional[List[ArgumentSignature]] = None
 
     def __str__(self):
         str_repr =\

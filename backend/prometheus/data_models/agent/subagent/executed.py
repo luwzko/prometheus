@@ -3,9 +3,9 @@ from typing import Optional, List, Dict
 
 from prometheus.data_models.action import ActionOutput, ActionRequest
 
-class ExecutorContext(BaseModel):
+class ExecutedWorkflow(BaseModel):
     """
-    ExecutorContext is a class which defines what did the workflow agent plan, executed context and Control parameters.
+    ExecutedWorkflow is a class which defines what did the workflow agent plan, executed context and Control parameters.
     It a wrapper for a dictionary.
     WorkflowAgent returns an object of this class.
     """

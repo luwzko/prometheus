@@ -1,6 +1,6 @@
 from prometheus.factory import get_prometheus
 from prometheus.agents.main import Prometheus
-from prometheus.setup import setup_logging, parse_arguments
+from prometheus.config import setup_logging, parse_arguments
 setup_logging()
 
 def cli(config_path: str | None):

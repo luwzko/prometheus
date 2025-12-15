@@ -1,8 +1,7 @@
+from prometheus.config.config import AgentConfig
+
 from pydantic import BaseModel
-
-from prometheus.setup.config import AgentConfig
-
-from typing import TypeAlias, Dict, Type, List
+from typing import Dict, List
 import json
 
 import logging
@@ -27,7 +26,6 @@ def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond")
 class AgentPrompt:
     """
     AgentPrompt is a class which combines prompt and output structure and other agent variables.
-    It reads contents of prompt file and output structure file which are contained in AgentConfig.
     """
 
     def __init__(self, agent_config: AgentConfig, response_model: BaseModel):

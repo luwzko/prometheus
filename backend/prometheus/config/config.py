@@ -142,8 +142,9 @@ class PrometheusConfig(BaseModel):
         elif isinstance(agent_config.model_config_, dict):
             merged = global_model_config.model_dump()
             merged.update(agent_config.model_config_)
-
             return ModelConfig(**merged)
+
+        return None
 
     def init_model_cfg(self, global_model_config: ModelConfig):
         """ Replaces all model_config data for agent with a real model config object. """
@@ -201,13 +202,13 @@ class MainConfig:
             agent = getattr(self.prometheus_config, agent_name)
 
         if hasattr(self.prometheus_config.action_manager, agent_name):
-            agent =  getattr(self.prometheus_config.action_manager, agent_name)
+            agent = getattr(self.prometheus_config.action_manager, agent_name)
 
         if isinstance(agent, AgentConfig):
             return agent
 
         return None
 
-    def get_api_response(self):
+    def get_public_config(self):
         """Returns an API safe response for the config."""
         return self.prometheus_config.get_public()

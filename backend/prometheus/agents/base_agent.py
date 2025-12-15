@@ -1,15 +1,13 @@
-import logging
-
-from pydantic import BaseModel
-
 from prometheus.agents.conversation_history import ConversationHistory
 from prometheus.data_models.api import ModelResponse
-from prometheus.data_models.shared import UserInput, PrometheusOutput
-from prometheus.setup.config import AgentConfig
+from prometheus.data_models.shared import UserInput
+from prometheus.config.config import AgentConfig
 from prometheus.prompt import AgentPrompt
 from prometheus.model import Model
 
-from typing import List, Tuple, Type, Generic, TypeVar
+from typing import Type, Generic, TypeVar
+from pydantic import BaseModel
+import logging
 import json
 
 TResponse = TypeVar("TResponse", bound = BaseModel)
@@ -32,6 +30,7 @@ class BaseAgent(Generic[TResponse, TOutput]):
 
         self.response_model: Type[TResponse] = response_model
         self.output_model: Type[TOutput] = output_model if output_model is not None else response_model
+
         self.conversation_history = ConversationHistory[UserInput, TOutput]()
 
         self.model = Model(self._agent_config.model_config_)
@@ -83,7 +82,7 @@ class BaseAgent(Generic[TResponse, TOutput]):
 
     def execute(self, message: str):
         """
-        Main way to communicate with the agent, its customizable for extra functionality.
+        Main way to communicate with the agent, it's customizable for extra functionality.
         :param message:
         :return:
         """

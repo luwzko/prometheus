@@ -1,7 +1,7 @@
 from prometheus.agents.action_agents.code_agent import CodeAgent
 from prometheus.agents.action_agents.think_agent import ThinkAgent
 
-from prometheus.setup.config import ActionManagerConfig
+from prometheus.config.config import ActionManagerConfig
 from prometheus.data_models.action import *
 
 from typing import Callable, Dict, Any, List
@@ -29,7 +29,6 @@ def action(name: str, description: str, variable: str):
         action_name = name or func.__name__
         action_description = description or "No description added."
 
-
         # arguments_sig is a list of argument signatures, which is argument name : argument type
         arguments_sig: List[Action.ArgumentSignature] = []
         # generate the functions signature
@@ -40,15 +39,16 @@ def action(name: str, description: str, variable: str):
             arg_type = arg.annotation if arg.annotation != inspect.Parameter.empty else None
 
             arguments_sig.append(
-                Action.ArgumentSignature.model_validate({"arg_name": arg_name, "arg_type": arg_type.__name__})
+                Action.ArgumentSignature(arg_name = arg_name, arg_type = arg_type.__name__)
             )
 
-        act = Action.model_validate({
-            "name": action_name,
-            "description": action_description,
-            "variable": variable,
-            "arguments_sig": arguments_sig
-        })
+        act = Action(
+            name = action_name,
+            description = action_description,
+            variable = variable,
+            arguments_sig = arguments_sig
+        )
+
         ActionManager.ACTION_REGISTRY[act] = func
 
         logger.debug(f"Successfully initialized the action named: {action_name}")

@@ -1,4 +1,4 @@
-from prometheus.setup.config import ModelConfig
+from prometheus.config.config import ModelConfig
 from prometheus.data_models.api import ModelResponse
 
 import requests
@@ -52,6 +52,7 @@ class Model:
             error = api_response.get_error()
             if error:
                 logger.error(f"API returned: {error[0]} with error code: {error[1]}")
+
             else:
                 logger.error("API call failed with no error details")
             raise Exception("API call failed")

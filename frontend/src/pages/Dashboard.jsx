@@ -35,9 +35,11 @@ export default function Dashboard() {
             //   action_output: { source, variable, result } | null,
             //   task: string | null,
             //   plan: { plans: [...] } | null,
-            //   executed: { executed: {...} } | null
+            //   executed: { executed: {...} } | null,
+            //   reflection: { summary: string, control: {...} | null } | null  // NEW - always present for act/plan
             // }
             // The formatPrometheusResponse function extracts the main text content.
+            // Reflection summary is now the primary output for act/plan modes.
             // Full details are shown in the expandable MessageBubble component.
             
             const formattedContent = formatPrometheusResponse(response);

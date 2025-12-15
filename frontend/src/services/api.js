@@ -228,10 +228,19 @@ export async function getModelConfig() {
  *         control
  *       }
  *     }
+ *   } | null,
+ *   reflection: {                               // NEW - Reflection from REFLECTOR agent
+ *     summary: string,                          // User-friendly summary
+ *     control: {                                // Control fields (can be null)
+ *       error_detected: boolean,
+ *       error_reason: string | null,
+ *       recommended_action: string | null
+ *     } | null
  *   } | null
  * }
  * 
  * This function extracts the main text content for the message preview.
+ * Reflection summary is now the primary output for act/plan modes.
  * Full details are shown in the expandable MessageBubble component.
  * 
  * @param {PrometheusOutput} response - Response from API
@@ -239,6 +248,11 @@ export async function getModelConfig() {
  */
 export function formatPrometheusResponse(response) {
     if (!response) return 'No response received.';
+
+    // Priority 1: Reflection summary (primary user-facing output for act/plan modes)
+    if (response.reflection && response.reflection.summary) {
+        return response.reflection.summary;
+    }
 
     // Extract text content - text is a ModelOutput object with content field
     const getTextContent = () => {

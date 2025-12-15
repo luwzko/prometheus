@@ -13,15 +13,18 @@ import { useState } from "react";
  *   task: string | null,
  *   plan: { plans: [...] } | null,
  *   executed: { executed: {...} } | null,
- *   reflection: {
- *     summary: string,
- *     control: {
+ *   reflection: {                                    // NEW - always present for act/plan modes
+ *     summary: string,                              // Primary user-facing output (formatted for humans)
+ *     control: {                                    // Control fields (can be null)
  *       error_detected: boolean,
  *       error_reason: string | null,
  *       recommended_action: string | null
- *     }
+ *     } | null
  *   } | null
  * }
+ * 
+ * Reflection summary is displayed as the primary content in the chat.
+ * Technical outputs (action_output, executed) are available but secondary.
  */
 export default function MessageBubble({ message, role }) {
     const [showExecuted, setShowExecuted] = useState(false);
@@ -43,17 +46,17 @@ export default function MessageBubble({ message, role }) {
 
         // For assistant messages, try multiple sources
         if (rawResponse) {
-            // Priority 1: text.content (main response text)
+            // Priority 1: reflection summary (primary user-facing output for act/plan modes)
+            if (rawResponse.reflection && rawResponse.reflection.summary) {
+                return rawResponse.reflection.summary;
+            }
+            
+            // Priority 2: text.content (main response text)
             if (rawResponse.text && rawResponse.text.content) {
                 return rawResponse.text.content;
             }
             if (typeof rawResponse.text === 'string') {
                 return rawResponse.text;
-            }
-            
-            // Priority 2: reflection summary (if available)
-            if (rawResponse.reflection && rawResponse.reflection.summary) {
-                return rawResponse.reflection.summary;
             }
             
             // Priority 3: task description
@@ -182,48 +185,40 @@ export default function MessageBubble({ message, role }) {
                     </div>
                 )}
 
-                {/* Reflection Section */}
+                {/* Reflection Control Section - Always show cog if reflection exists */}
                 {hasReflection && (
-                    <div className="px-6 py-3 border-t border-white/10 dark:border-white/5 bg-white/10 dark:bg-white/5">
-                        <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                                <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
-                                    Reflection
-                                </div>
-                                {reflection.summary && (
-                                    <p className="text-xs text-gray-900 dark:text-gray-100 leading-relaxed whitespace-pre-line">
-                                        {reflection.summary}
-                                    </p>
-                                )}
-                            </div>
-                            
-                            {/* Gear Icon for Error Control */}
-                            {reflection.control && (
-                                <button
-                                    onClick={() => setShowErrorControl(!showErrorControl)}
-                                    className="flex-shrink-0 p-1.5 rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
-                                    title="Error Control"
-                                >
-                                    <svg 
-                                        className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
-                                            showErrorControl ? 'rotate-90' : ''
-                                        }`}
-                                        fill="none" 
-                                        stroke="currentColor" 
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </button>
-                            )}
-                        </div>
+                    <div className="px-6 py-2 border-t border-white/10 dark:border-white/5 bg-white/10 dark:bg-white/5 flex items-center justify-end">
+                        {/* Gear Icon for Reflection Control - Always visible if reflection exists */}
+                        <button
+                            onClick={() => setShowErrorControl(!showErrorControl)}
+                            className="flex-shrink-0 p-1.5 rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+                            title="View Reflection Control"
+                        >
+                            <svg 
+                                className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200 ${
+                                    showErrorControl ? 'rotate-90' : ''
+                                }`}
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
 
-                        {/* Error Control Details */}
-                        {showErrorControl && reflection.control && (
-                            <div className="mt-3 pt-3 border-t border-white/10 dark:border-white/5 space-y-2">
+                {/* Reflection Control Details - Expandable */}
+                {hasReflection && showErrorControl && (
+                    <div className="px-6 py-3 border-t border-white/10 dark:border-white/5 bg-white/5 dark:bg-white/5 space-y-2">
+                        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-2">
+                            Reflection Control
+                        </div>
+                        {reflection.control ? (
+                            <>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-24">Error Detected:</span>
+                                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-32">Error Detected:</span>
                                     <span className={`text-xs font-semibold ${
                                         reflection.control.error_detected ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
                                     }`}>
@@ -232,7 +227,7 @@ export default function MessageBubble({ message, role }) {
                                 </div>
                                 {reflection.control.error_reason && (
                                     <div className="flex items-start gap-2">
-                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-24 flex-shrink-0">Error Reason:</span>
+                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-32 flex-shrink-0">Error Reason:</span>
                                         <span className="text-xs text-gray-900 dark:text-gray-100 flex-1">
                                             {reflection.control.error_reason}
                                         </span>
@@ -240,12 +235,16 @@ export default function MessageBubble({ message, role }) {
                                 )}
                                 {reflection.control.recommended_action && (
                                     <div className="flex items-start gap-2">
-                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-24 flex-shrink-0">Recommended:</span>
+                                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 w-32 flex-shrink-0">Recommended:</span>
                                         <span className="text-xs text-gray-900 dark:text-gray-100 flex-1">
                                             {reflection.control.recommended_action}
                                         </span>
                                     </div>
                                 )}
+                            </>
+                        ) : (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                                No control data available
                             </div>
                         )}
                     </div>

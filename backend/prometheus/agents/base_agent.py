@@ -23,7 +23,6 @@ class BaseAgent(Generic[TResponse, TOutput]):
             response_model: Type[TResponse],
             output_model: Type[TOutput] = None
     ):
-
         self._agent_config = agent_config
 
         self.logger = logging.getLogger(f"prometheus.agents.{self.__class__.__name__}")
@@ -31,7 +30,7 @@ class BaseAgent(Generic[TResponse, TOutput]):
         self.response_model: Type[TResponse] = response_model
         self.output_model: Type[TOutput] = output_model if output_model is not None else response_model
 
-        self.conversation_history = ConversationHistory[UserInput, TOutput]()
+        self.conversation_history = ConversationHistory[UserInput, TOutput](UserInput, self.output_model)
 
         self.model = Model(self._agent_config.model_config_)
         self.prompt = AgentPrompt(self._agent_config, self.response_model)

@@ -20,6 +20,7 @@ async def chat(message: str):
     try:
         agent = get_prometheus()
         output = agent.execute(message)
+        print(output.model_dump_json())
 
         return output
     except HTTPException as e:

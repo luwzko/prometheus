@@ -140,7 +140,7 @@ celerybeat.pid
 .idea/
 .envrc
 .venv
-.jsonl
+*.jsonl
 env/
 venv/
 ENV/

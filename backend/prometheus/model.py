@@ -57,5 +57,4 @@ class Model:
                 logger.error("API call failed with no error details")
             raise Exception("API call failed")
 
-        logger.debug("API returned successful response")
         return api_response

@@ -60,6 +60,5 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
             reflection_context = self.reflector.execute(prometheus_output)
             prometheus_output.reflection = reflection_context
 
-        print(prometheus_output.model_dump_json())
         self.conversation_history.add_to_history(user_input, prometheus_output)
         return prometheus_output

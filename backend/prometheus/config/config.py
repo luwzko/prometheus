@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, model_validator
-from typing import TypeAlias, Union, Literal
+from typing import Literal
 import json
 
 from dotenv import load_dotenv
@@ -8,8 +8,6 @@ import os
 import logging
 
 logger = logging.getLogger("prometheus.config")
-
-Config: TypeAlias = dict[str, str]
 
 class ModelConfig(BaseModel):
     """
@@ -20,17 +18,10 @@ class ModelConfig(BaseModel):
     temperature -> "creativity" of the model
     """
     name: str
-    base_url: str
-    api_key: str
+    base_url: str = Field(exclude = True)
+    api_key: str = Field(exclude = True)
     max_tokens: int = Field(default = 4096, le = 8192, description = "max_tokens max value is 8192.")
     temperature: float = Field(default = 0.2, ge = 0.0, le = 1.0, description = "temperature value should be between 0 - 1.")
-
-    def get_public(self):
-        """
-        Returns model_config but without base_url and api_key.
-        :return:
-        """
-        return self.model_dump(exclude = {"base_url", "api_key"})
 
 class AgentConfig(BaseModel):
     """
@@ -39,7 +30,7 @@ class AgentConfig(BaseModel):
     model_config_ can be "inherit", new model_config object or a dict with overwritten settings.
     """
     prompt: str
-    model_config_: Union[Literal["inherit"], ModelConfig, dict] = "inherit"
+    model_config_: Literal["inherit"] | ModelConfig | dict = "inherit"
 
     prompt_content: str = ""
     response_format: dict[str, dict] | None = None
@@ -63,7 +54,7 @@ class AgentConfig(BaseModel):
 
     def get_public(self):
         return {
-            "model_config": self.model_config_.get_public()
+            "model_config": self.model_config_.model_dump()
         }
 
     def get_full_public(self):
@@ -72,7 +63,7 @@ class AgentConfig(BaseModel):
         """
         return {
             "prompt": self.prompt,
-            "model_config": self.model_config_.get_public(),
+            "model_config": self.model_config_.model_dump(),
             "prompt_content": self.prompt_content,
             "response_format": self.response_format
         }
@@ -123,7 +114,7 @@ class PrometheusConfig(BaseModel):
 
         return public_data
 
-    def _resolve_model_config(self, agent_config: AgentConfig, global_model_config: ModelConfig):
+    def _resolve_model_config(self, agent_config: AgentConfig, global_model_config: ModelConfig) -> ModelConfig:
         """
         Determines the value of model config based on what is supplied in the config file.
         :param agent_config:
@@ -142,9 +133,10 @@ class PrometheusConfig(BaseModel):
         elif isinstance(agent_config.model_config_, dict):
             merged = global_model_config.model_dump()
             merged.update(agent_config.model_config_)
+
             return ModelConfig(**merged)
 
-        return None
+        raise ValueError(f"Invalid model_config_ type: {type(agent_config.model_config_)}")
 
     def init_model_cfg(self, global_model_config: ModelConfig):
         """ Replaces all model_config data for agent with a real model config object. """
@@ -168,7 +160,7 @@ class MainConfig:
 
         self._config_file: str = config_file
 
-        self._config: Config
+        self._config: dict[str, str]
         self._config_text: str
 
         self._API_KEY = os.getenv("API_KEY")

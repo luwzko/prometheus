@@ -33,15 +33,14 @@ def main():
     args = parse_arguments()
 
     config_file: str = args.config
-    use_api: bool = args.api
-
+    use_cli: bool = args.cli
 
     prometheus: Prometheus = get_prometheus(config_file)
 
-    if use_api:
-        api("0.0.0.0", 8000, False, config_file)
+    if use_cli:
+        cli(config_file)
 
-    else: cli(config_file)
+    else: api("0.0.0.0", 8000, False, config_file)
 
 if __name__ == "__main__":
     main()

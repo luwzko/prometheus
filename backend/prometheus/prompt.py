@@ -5,7 +5,6 @@ from typing import Dict, List
 import json
 
 import logging
-logger = logging.getLogger("prometheus.prompt")
 
 def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond"):
     """
@@ -28,7 +27,9 @@ class AgentPrompt:
     AgentPrompt is a class which combines prompt and output structure and other agent variables.
     """
 
-    def __init__(self, agent_config: AgentConfig, response_model: BaseModel):
+    def __init__(self, logger: logging.Logger, agent_config: AgentConfig, response_model: BaseModel):
+        self.logger = logger.getChild("prompt")
+
         self._agent_config = agent_config
         self._response_model: BaseModel = response_model
 
@@ -55,6 +56,8 @@ class AgentPrompt:
             }
 
         self._initialize()
+
+        self.logger.debug("Initialized.")
 
     def _initialize(self) -> None:
         """
@@ -88,7 +91,7 @@ class AgentPrompt:
         :param history_context:
         :return finalized prompt:
         """
-        logger.debug(f"Fetching prompt structure:\n msg = {user_message}")
+        self.logger.debug(f"Generating prompt for: msg =  {user_message}")
 
         def generate_message(role: str, content: str):
             return {"role": role, "content": content}

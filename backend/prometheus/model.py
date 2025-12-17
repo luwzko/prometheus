@@ -5,15 +5,15 @@ import requests
 import json
 
 import logging
-logger = logging.getLogger("prometheus.model")
 
 class Model:
     """
     Model class is used for interacting with the API.
     """
-    def __init__(self, model_config: ModelConfig):
-        self._model_config = model_config
+    def __init__(self, logger: logging.Logger, model_config: ModelConfig):
+        self.logger = logger.getChild("model")
 
+        self._model_config = model_config
         self._headers = {
             "Authorization": f"Bearer {self._model_config.api_key}",
         }
@@ -28,7 +28,7 @@ class Model:
             )
 
         except requests.RequestException as e:
-            logger.error(f"Error while requesting model response.")
+            self.logger.error(f"Error while requesting model response.")
             return None
 
         return response
@@ -51,10 +51,10 @@ class Model:
         if not api_response.is_success():
             error = api_response.get_error()
             if error:
-                logger.error(f"API returned: {error[0]} with error code: {error[1]}")
+                self.logger.error(f"API returned: {error[0]} with error code: {error[1]}")
 
             else:
-                logger.error("API call failed with no error details")
+                self.logger.error("API call failed with no error details")
             raise Exception("API call failed")
 
         return api_response

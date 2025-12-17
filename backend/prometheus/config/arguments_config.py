@@ -15,9 +15,9 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--api",
+        "--cli",
         action = "store_true",
-        help = "Enable to run the agent in API mode instead of CLI."
+        help = "Enable to run the agent in CLI mode instead of API."
     )
 
     return parser.parse_args()

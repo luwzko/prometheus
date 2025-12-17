@@ -6,8 +6,6 @@ from pathlib import Path
 
 import logging
 
-logger = logging.getLogger("prometheus.agents.conversation_history")
-
 TInput = TypeVar("TInput", bound = BaseModel)
 TOutput = TypeVar("TOutput", bound = BaseModel)
 
@@ -17,11 +15,13 @@ class ConversationHistory(Generic[TInput, TOutput]):
     TInput - Type of user input
     TOutput - Type of agent output
     """
-    def __init__(self, input_model: Type[TInput], output_model: Type[TOutput], max_length: int = 10, save_folder: str = "data/conversations"):
+    def __init__(self, logger: logging.Logger, input_model: Type[TInput], output_model: Type[TOutput], max_length: int = 10, save_folder: str = "data/conversations"):
         """
         Initializes ConversationHistory.
         :param max_length:
         """
+        self.logger = logger.getChild("conversation_history")
+
         self.input_model = input_model
         self.output_model = output_model
         self._max_length = max_length
@@ -55,7 +55,7 @@ class ConversationHistory(Generic[TInput, TOutput]):
                 pair = json.loads(line)
 
                 if not isinstance(pair, list) or len(pair) != 2:
-                    logger.error(f"Line {line_num}: Expected array of 2 elements.")
+                    self.logger.error(f"Line {line_num}: Expected array of 2 elements.")
                     continue
 
                 user_input = self.input_model.model_validate(pair[0])

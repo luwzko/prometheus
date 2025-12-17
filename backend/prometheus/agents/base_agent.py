@@ -30,10 +30,10 @@ class BaseAgent(Generic[TResponse, TOutput]):
         self.response_model: Type[TResponse] = response_model
         self.output_model: Type[TOutput] = output_model if output_model is not None else response_model
 
-        self.conversation_history = ConversationHistory[UserInput, TOutput](UserInput, self.output_model)
+        self.conversation_history = ConversationHistory[UserInput, TOutput](self.logger, UserInput, self.output_model)
 
-        self.model = Model(self._agent_config.model_config_)
-        self.prompt = AgentPrompt(self._agent_config, self.response_model)
+        self.model = Model(self.logger, self._agent_config.model_config_)
+        self.prompt = AgentPrompt(self.logger, self._agent_config, self.response_model)
 
     def get_model_config(self):
         """
@@ -76,7 +76,6 @@ class BaseAgent(Generic[TResponse, TOutput]):
         response = self.model.chat(full_prompt)
         validated = self._extract_tool_call(response)
 
-        self.logger.debug(f"Successfully interacted with {message}")
         return validated
 
     def execute(self, message: str):

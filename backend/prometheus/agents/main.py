@@ -34,8 +34,6 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
         prometheus_output.mode = validated.mode
         prometheus_output.text = ModelOutput(content = validated.text)
 
-        self.logger.debug(f"Prometheus decided on running: {validated.mode}")
-
         # handle mode specific interactions
         match validated.mode:
             case "respond": pass

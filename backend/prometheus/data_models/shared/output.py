@@ -4,9 +4,6 @@ from prometheus.data_models.agent.subagent import *
 
 from typing import Optional
 
-class UserInput(BaseContext):
-    content: str | None = None
-
 class ModelOutput(BaseContext):
     content: str | None = None
 

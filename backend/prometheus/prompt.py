@@ -6,6 +6,9 @@ import json
 
 import logging
 
+from prometheus.data_models.shared import UserInput
+
+
 def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond"):
     """
     Generates the tool schema so the model knows how to respond.
@@ -83,7 +86,7 @@ class AgentPrompt:
         for var, data in self.variables.items():
             self._prompt = self._prompt.replace(var, data)
 
-    def get(self, user_message: str, history_context: List[dict]) -> str:
+    def get(self, user_message: UserInput, history_context: List[dict]) -> str:
         """
         `get` method is the main way to use the AgentPrompt class.
 
@@ -91,15 +94,15 @@ class AgentPrompt:
         :param history_context:
         :return finalized prompt:
         """
-        self.logger.debug(f"Generating prompt for: msg =  {user_message}")
+        self.logger.debug(f"Generating prompt for: msg = {user_message}")
 
         def generate_message(role: str, content: str):
             return {"role": role, "content": content}
 
         messages = [
-            generate_message("system", self._prompt),
+            {"role": "system", "content": self._prompt},
             *history_context,
-            generate_message("user", user_message)
+            user_message.build_message_block()
         ]
 
         self._response_format["messages"] = messages

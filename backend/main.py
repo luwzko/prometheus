@@ -1,3 +1,5 @@
+from prometheus.data_models.shared import UserInput
+from prometheus.data_models.shared.user_input import FileAttachment
 from prometheus.factory import get_prometheus
 from prometheus.agents.main import Prometheus
 from prometheus.config import setup_logging, parse_arguments
@@ -15,7 +17,9 @@ def cli(config_path: str | None):
         if msg.lower() in ["quit", "exit"]:
             break
 
-        result = agent.execute(msg)
+        usr_input = UserInput(message = msg, files = [])
+        result = agent.execute(usr_input)
+
         print(result.model_dump_json(indent=4))
 
 def api(host: str, port: int, reload: bool, config_file: str | None):

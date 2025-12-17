@@ -41,6 +41,7 @@ class Model:
         :return: ModelResponse object
         """
         # Make API call
+        print(data)
         response = self._interact(data)
         response_json = json.loads(response.text)
 

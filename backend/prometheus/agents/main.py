@@ -21,9 +21,8 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
 
         self.action_manager = ActionManager(self.prometheus_config.action_manager)
 
-    def execute(self, message: str) -> PrometheusOutput | None:
-        user_input = UserInput(content = message)
-        validated = self._interact(message)
+    def execute(self, user_input: UserInput) -> PrometheusOutput | None:
+        validated = self._interact(user_input)
 
         if validated is None:
             self.logger.error("API error incurred.")

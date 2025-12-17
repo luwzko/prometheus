@@ -27,5 +27,6 @@ class ModelResponse(BaseModel):
     def get_error(self) -> tuple[str, int] | None:
         """Get error message and code if present"""
         if self.error:
+            print(self.error)
             return self.error.get("message"), self.error.get("code")
         return None

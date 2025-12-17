@@ -15,7 +15,7 @@ class ConversationHistory(Generic[TInput, TOutput]):
     TInput - Type of user input
     TOutput - Type of agent output
     """
-    def __init__(self, logger: logging.Logger, input_model: Type[TInput], output_model: Type[TOutput], max_length: int = 10, save_folder: str = "data/conversations"):
+    def __init__(self, logger: logging.Logger, input_model: Type[TInput], output_model: Type[TOutput], max_length: int = 10, save_folder: str = "data/conversations", save_file: str = "history.jsonl"):
         """
         Initializes ConversationHistory.
         :param max_length:
@@ -29,9 +29,9 @@ class ConversationHistory(Generic[TInput, TOutput]):
         self.history_dir = Path(save_folder)
         self.history_dir.mkdir(parents = True, exist_ok = True)
 
-        self.history_file = self.history_dir / "history.jsonl"
+        self.history_file = self.history_dir / save_file
 
-        self._history: List[Tuple[TInput, TOutput]] = self._load_history()
+        self._history: List[Tuple[TInput, TOutput]] = [] #self._load_history()
 
     def _load_history(self):
         """
@@ -103,10 +103,17 @@ class ConversationHistory(Generic[TInput, TOutput]):
         messages = []
 
         for user_input, agent_output in self._history:
-            messages.append({
-                "role": "user",
-                "content": user_input.content
-            })
+            # Use build_message_block() for UserInput to properly handle files
+            if hasattr(user_input, 'build_message_block'):
+                # UserInput has build_message_block method - use it
+                user_msg = user_input.build_message_block()
+                messages.append(user_msg)
+            else:
+                # Fallback for other input types
+                messages.append({
+                    "role": "user",
+                    "content": getattr(user_input, 'message', str(user_input))
+                })
 
             messages.append({
                 "role": "assistant",

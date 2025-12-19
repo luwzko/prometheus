@@ -86,12 +86,12 @@ class AgentPrompt:
         for var, data in self.variables.items():
             self._prompt = self._prompt.replace(var, data)
 
-    def get(self, user_message: UserInput, history_context: List[dict]) -> str:
+    def get(self, user_message: UserInput | str, context: List[dict]) -> str:
         """
         `get` method is the main way to use the AgentPrompt class.
 
         :param user_message:
-        :param history_context:
+        :param context:
         :return finalized prompt:
         """
         self.logger.debug(f"Generating prompt for: msg = {user_message}")
@@ -101,9 +101,13 @@ class AgentPrompt:
 
         messages = [
             {"role": "system", "content": self._prompt},
-            *history_context,
-            user_message.build_message_block()
+            *context,
         ]
+
+        if isinstance(user_message, UserInput):
+            messages.append(user_message.build_message_block())
+        else:
+            messages.append(generate_message("user", user_message))
 
         self._response_format["messages"] = messages
 

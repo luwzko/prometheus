@@ -55,22 +55,24 @@ class FileAttachment(BaseModel):
     """
     FileAttachment defines what data attachments contain
     """
+    # path of the file and what type of upload is it.
     source_path: Optional[str] = None
+    source_type: Literal["raw", "upload", "url"] = "raw"
+    # filename and files contents
     filename: Optional[str] = None
     content: str = ""
     mime_type: Optional[SupportedMimeTypes] = None
-    source: Literal["raw", "upload", "url"] = "raw"
 
     @model_validator(mode = "after")
     def process(self) -> "FileAttachment":
         """After the model is initialized it processes the file attachment."""
-        if self.source == "raw" and self.content:
+        if self.source_type == "raw" and self.content:
             return self
 
-        if self.source == "upload" and self.source_path:
+        if self.source_type == "upload" and self.source_path:
             self._load_from_upload()
 
-        elif self.source == "url" and self.source_path:
+        elif self.source_type == "url" and self.source_path:
             self._load_from_url()
 
         return self
@@ -103,8 +105,8 @@ class UserInput(BaseContext):
     UserInput defines what can or will the user provide.
     The user can provide messages, images and files.
     """
-    message: Optional[str] = Field(default=None, description = "The text message from user")
-    files: Optional[List[FileAttachment]] = Field(default_factory=[])
+    message: Optional[str] = Field(default = None, description = "The text message from user")
+    files: Optional[List[FileAttachment]] = Field(default_factory = [])
 
     def build_message_block(self):
         """
@@ -120,19 +122,21 @@ class UserInput(BaseContext):
 
         for att in self.files:
             if att.mime_type and att.mime_type.startswith("image/"):
-                if att.source == "url":
+                # if the source is url, create a message with image url
+                if att.source_type == "url":
                     image_blocks.append({
                         "type": "image_url",
                         "image_url": {"url": att.content}
                     })
-
-                elif att.source == "upload":
+                # if the source is upload, it creates the image message but with image contents encoded in base64
+                elif att.source_type == "upload":
                     image_blocks.append({
                         "type": "image_url",
                         "image_url": {
                             "url": f"data:{att.mime_type};base64,{att.content}"
                         }
                     })
+            # default create message with filename and file contents
             else:
                 text_blocks.append({
                     "type": "text",

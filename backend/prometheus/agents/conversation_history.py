@@ -14,6 +14,11 @@ class ConversationHistory(Generic[TInput, TOutput]):
     Manages conversation data with sliding window.
     TInput - Type of user input
     TOutput - Type of agent output
+
+    ConversationHistory saves interactions the agent has done.
+    Each agent is special in what input they take and which output they produce.
+    input_model and output model are what define those models.
+    With this ConversationHistory can properly save and load models.
     """
     def __init__(self, logger: logging.Logger, input_model: Type[TInput], output_model: Type[TOutput], max_length: int = 10, save_folder: str = "data/conversations", save_file: str = "history.jsonl"):
         """

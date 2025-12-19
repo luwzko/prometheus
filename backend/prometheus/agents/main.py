@@ -1,4 +1,5 @@
 from prometheus.agents.base_agent import BaseAgent
+from prometheus.agents.conversation_history import ConversationHistory
 from prometheus.agents.subagents import WorkflowAgent, ReflectorAgent
 
 from prometheus.data_models.agent import PrometheusResponse
@@ -21,8 +22,16 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
 
         self.action_manager = ActionManager(self.prometheus_config.action_manager)
 
+        self.conversation_history = ConversationHistory[UserInput, PrometheusOutput](
+            self.logger,
+            UserInput,
+            self.output_model,
+            save_file = f"history.jsonl"
+        )
+
+
     def execute(self, user_input: UserInput) -> PrometheusOutput | None:
-        validated = self._interact(user_input)
+        validated = self._interact(user_input, self.conversation_history.get_context_msg())
 
         if validated is None:
             self.logger.error("API error incurred.")

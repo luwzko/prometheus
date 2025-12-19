@@ -30,13 +30,6 @@ class BaseAgent(Generic[TResponse, TOutput]):
         self.response_model: Type[TResponse] = response_model
         self.output_model: Type[TOutput] = output_model if output_model is not None else response_model
 
-        self.conversation_history = ConversationHistory[UserInput, TOutput](
-            self.logger,
-            UserInput,
-            self.output_model,
-            save_file = f"history_{self.__class__.__name__}.jsonl"
-        )
-
         self.model = Model(self.logger, self._agent_config.model_config_)
         self.prompt = AgentPrompt(self.logger, self._agent_config, self.response_model)
 
@@ -68,15 +61,17 @@ class BaseAgent(Generic[TResponse, TOutput]):
             self.logger.error(f"Failed to validate response: {e}")
             raise
 
-    def _interact(self, message: UserInput) -> TResponse:
+    def _interact(self, message: UserInput, context = None) -> TResponse:
         """
         Basic function to interact with the model as the agent.
 
         :param message:
         :return:
         """
-        context_messages = self.conversation_history.get_context_msg()
-        full_prompt = self.prompt.get(message, context_messages)
+        if context is None:
+            context = []
+
+        full_prompt = self.prompt.get(message, context)
 
         response = self.model.chat(full_prompt)
         validated = self._extract_tool_call(response)

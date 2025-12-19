@@ -7,68 +7,46 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 /**
  * Send a chat message to Prometheus
- * @param {string} message - User's message
+ * @param {string|Object} userInput - User's message string or object with message and files
  * @returns {Promise<PrometheusOutput>}
  */
-export async function sendChatMessage(message) {
+export async function sendChatMessage(userInput) {
     try {
-        // FastAPI endpoint expects message as a query parameter
-        // POST /api/chat?message=Hello
-        const response = await fetch(`${API_BASE_URL}/chat?message=${encodeURIComponent(message)}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            // Try to get error details from response
-            let errorMessage = `HTTP ${response.status} Error`;
-            let errorDetails = null;
-            
-            try {
-                const errorData = await response.json();
-                errorDetails = errorData;
-                // FastAPI typically returns errors in 'detail' field
-                if (Array.isArray(errorData.detail)) {
-                    // Validation errors come as array
-                    errorMessage = errorData.detail.map(err => 
-                        `${err.loc?.join('.')}: ${err.msg}`
-                    ).join(', ');
-                } else if (errorData.detail) {
-                    errorMessage = String(errorData.detail);
-                } else if (errorData.message) {
-                    errorMessage = String(errorData.message);
-                } else {
-                    errorMessage = `Server error (${response.status}). Check backend logs.`;
-                }
-                console.error('Backend error details:', errorData);
-            } catch (e) {
-                // If response is not JSON, use status text
-                try {
-                    const text = await response.text();
-                    errorMessage = text || `HTTP ${response.status}: ${response.statusText}`;
-                    console.error('Non-JSON error response:', text);
-                } catch (textError) {
-                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                }
-            }
-            
-            // Add status code to error message for better debugging
-            if (response.status === 500) {
-                errorMessage = `Backend server error (500). The backend may have a response model mismatch. Details: ${errorMessage}`;
-            } else if (response.status === 422) {
-                errorMessage = `Validation error (422). ${errorMessage}`;
-            }
-            
-            const error = new Error(errorMessage);
-            error.status = response.status;
-            error.details = errorDetails;
-            throw error;
+        // Always use FormData (backend expects multipart/form-data)
+        const formData = new FormData();
+        
+        // Extract message
+        const message = typeof userInput === 'string' 
+            ? userInput 
+            : (userInput.message || null);
+        
+        // Add message if provided (even if empty string, backend handles None)
+        if (message !== null && message !== undefined) {
+            formData.append('message', message);
         }
-
-        const data = await response.json();
-        return data;
+        
+        // Add files if present
+        if (typeof userInput === 'object' && userInput.files) {
+            const files = Array.isArray(userInput.files) ? userInput.files : [];
+            files.forEach((file) => {
+                if (file instanceof File) {
+                    formData.append('files', file);
+                }
+            });
+        }
+        
+        // POST with FormData (don't set Content-Type - browser does it automatically)
+        const response = await fetch(`${API_BASE_URL}/chat`, {
+            method: 'POST',
+            body: formData,
+            // DO NOT set Content-Type header - browser sets it automatically with boundary
+        });
+        
+        if (!response.ok) {
+            throw await handleErrorResponse(response);
+        }
+        
+        return await response.json();
     } catch (error) {
         // Handle network errors (CORS, connection failures, etc.)
         if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -83,24 +61,59 @@ export async function sendChatMessage(message) {
             throw networkError;
         }
         
-        // Re-throw other errors with better context
-        if (!error.status) {
-            console.error('Unexpected error sending chat message:', error);
-        }
+        // Re-throw other errors
         throw error;
     }
 }
 
 /**
- * Get agent prompt and output structure (DEPRECATED - use getAgentConfig instead)
- * @deprecated Use getAgentConfig() from /api/config/{agent_name} instead
- * @param {string} agentName - Agent name ('main', 'planner', 'executor', 'reflector')
- * @returns {Promise<APIPromptResponse>}
+ * Handle error response from API
+ * @param {Response} response - Fetch response object
+ * @returns {Promise<Error>}
  */
-export async function getAgentPrompt(agentName) {
-    console.warn('getAgentPrompt is deprecated. Use getAgentConfig instead.');
-    // Fallback to new endpoint
-    return getAgentConfig(agentName);
+async function handleErrorResponse(response) {
+    let errorMessage = `HTTP ${response.status} Error`;
+    let errorDetails = null;
+    
+    try {
+        const errorData = await response.json();
+        errorDetails = errorData;
+        // FastAPI typically returns errors in 'detail' field
+        if (Array.isArray(errorData.detail)) {
+            // Validation errors come as array
+            errorMessage = errorData.detail.map(err => 
+                `${err.loc?.join('.')}: ${err.msg}`
+            ).join(', ');
+        } else if (errorData.detail) {
+            errorMessage = String(errorData.detail);
+        } else if (errorData.message) {
+            errorMessage = String(errorData.message);
+        } else {
+            errorMessage = `Server error (${response.status}). Check backend logs.`;
+        }
+        console.error('Backend error details:', errorData);
+    } catch (e) {
+        // If response is not JSON, use status text
+        try {
+            const text = await response.text();
+            errorMessage = text || `HTTP ${response.status}: ${response.statusText}`;
+            console.error('Non-JSON error response:', text);
+        } catch (textError) {
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+    }
+    
+    // Add status code to error message for better debugging
+    if (response.status === 500) {
+        errorMessage = `Backend server error (500). The backend may have a response model mismatch. Details: ${errorMessage}`;
+    } else if (response.status === 422) {
+        errorMessage = `Validation error (422). ${errorMessage}`;
+    }
+    
+    const error = new Error(errorMessage);
+    error.status = response.status;
+    error.details = errorDetails;
+    return error;
 }
 
 /**
@@ -175,22 +188,6 @@ export async function getAgentConfig(agentName) {
         return data;
     } catch (error) {
         console.error(`Error fetching agent config for ${agentName}:`, error);
-        throw error;
-    }
-}
-
-/**
- * Get model configuration (DEPRECATED - use getAllAgentsConfig instead)
- * @deprecated Use getAllAgentsConfig() from /api/config/ instead
- * @returns {Promise<ModelConfigResponse>}
- */
-export async function getModelConfig() {
-    console.warn('getModelConfig is deprecated. Use getAllAgentsConfig instead.');
-    try {
-        const allConfig = await getAllAgentsConfig();
-        return allConfig.global_model_config || {};
-    } catch (error) {
-        console.error('Error fetching model config:', error);
         throw error;
     }
 }

@@ -7,9 +7,7 @@ import RightSidebar from "../components/RightSidebar";
 import { sendChatMessage, formatPrometheusResponse } from "../services/api";
 
 export default function Dashboard() {
-    const [messages, setMessages] = useState([
-        { role: "assistant", content: "Hello! I'm Prometheus. How can I help you today?" }
-    ]);
+    const [messages, setMessages] = useState([]);
     const [activePanel, setActivePanel] = useState("config");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -19,14 +17,36 @@ export default function Dashboard() {
     ]);
     const [activeTab, setActiveTab] = useState('chat');
 
-    const handleSendMessage = async (content) => {
+    const handleSendMessage = async (userInput) => {
+        // Build display message for user
+        let displayMessage = '';
+        if (typeof userInput === 'string') {
+            // Legacy: simple string
+            displayMessage = userInput;
+        } else {
+            // UserInput object
+            displayMessage = userInput.message || '';
+            if (userInput.files && userInput.files.length > 0) {
+                // Handle both File objects and file data objects
+                const fileNames = userInput.files.map(f => {
+                    if (f instanceof File) {
+                        return f.name;
+                    }
+                    return f.filename || 'file';
+                }).join(', ');
+                displayMessage = displayMessage 
+                    ? `${displayMessage} [${fileNames}]`
+                    : `[Files: ${fileNames}]`;
+            }
+        }
+        
         // Add user message immediately
-        setMessages(prev => [...prev, { role: "user", content }]);
+        setMessages(prev => [...prev, { role: "user", content: displayMessage }]);
         setIsLoading(true);
 
         try {
-            // Call API - sends POST /api/chat?message=...
-            const response = await sendChatMessage(content);
+            // Call API - sends POST /api/chat with UserInput JSON
+            const response = await sendChatMessage(userInput);
             
             // PrometheusOutput structure (from context.py):
             // {

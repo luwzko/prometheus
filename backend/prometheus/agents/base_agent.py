@@ -1,4 +1,3 @@
-from prometheus.agents.conversation_history import ConversationHistory
 from prometheus.data_models.api import ModelResponse
 from prometheus.data_models.shared import UserInput
 from prometheus.config.config import AgentConfig
@@ -61,7 +60,7 @@ class BaseAgent(Generic[TResponse, TOutput]):
             self.logger.error(f"Failed to validate response: {e}")
             raise
 
-    def _interact(self, message: UserInput, context = None) -> TResponse:
+    def _interact(self, message: UserInput | str, context = None) -> TResponse:
         """
         Basic function to interact with the model as the agent.
 
@@ -76,9 +75,13 @@ class BaseAgent(Generic[TResponse, TOutput]):
         response = self.model.chat(full_prompt)
         validated = self._extract_tool_call(response)
 
+        if validated is None:
+            self.logger.error("API error incurred. validated response is none.")
+            raise Exception("API error incurred. validated response is none.")
+
         return validated
 
-    def execute(self, message: str):
+    def execute(self, message: UserInput | str):
         """
         Main way to communicate with the agent, it's customizable for extra functionality.
         :param message:

@@ -39,7 +39,7 @@ class AgentConfig(BaseModel):
     def load_prompt(self):
         """ Automatically load prompt after initialization """
         try:
-            with open(self.prompt, "r") as f:
+            with open(self.prompt, "r", encoding="utf-8") as f:
                 self.prompt_content = f.read()
 
         except FileNotFoundError:
@@ -94,6 +94,7 @@ class PrometheusConfig(BaseModel):
     main_agent: AgentConfig
 
     workflow: AgentConfig
+    analyzer: AgentConfig
     reflector: AgentConfig
 
     action_manager: ActionManagerConfig
@@ -166,7 +167,7 @@ class MainConfig:
         self._API_KEY = os.getenv("API_KEY")
 
         try:
-            with open(self._config_file, "r") as f:
+            with open(self._config_file, "r", encoding="utf-8") as f:
                 self._config_text = "".join(f.readlines())
 
         except FileNotFoundError as e:

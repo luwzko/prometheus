@@ -1,23 +1,27 @@
 from prometheus.actions.action_manager import run
-from prometheus.agents.base_agent import BaseAgent
-from prometheus.data_models.action import ActionOutput
-from prometheus.data_models.agent import ExecutedWorkflow, PlannedWorkflow
+from prometheus.agents.subagents.reflector import ReflectorAgent
 from prometheus.config.config import AgentConfig
+from prometheus.data_models.action import ActionOutput
+from prometheus.data_models.agent import PlannedWorkflow, ExecutedWorkflow
 
+import logging
 import re
-class WorkflowAgent(BaseAgent[PlannedWorkflow, ExecutedWorkflow]):
-    """
-    Subagent Workflow, it has a special output structure and prompt.
-    It's used to breakdown tasks into linked or not linked actions.
-    Then those broken down tasks get executed and fed into executor context
-    """
-    def __init__(self, agent_config: AgentConfig):
-        super().__init__(agent_config, PlannedWorkflow)
 
+class WorkflowExecutor:
+    """
+    WorkflowExecutor is a part of WorkflowAgent. In the code it's not defined as an agent (by not inheriting BaseAgent).
+    But it is considered an agent. It executes the planned workflow step by step.
+    """
+    def __init__(self, workflow_logger: logging.Logger, reflector_config: AgentConfig):
+        self.logger = workflow_logger.getChild("executor")
+        self.reflector_config = reflector_config
+
+        self.reflector = ReflectorAgent(self.reflector_config)
         self.ref_pattern = re.compile(r"\{ref:([A-Za-z0-9_]+)\}")
 
     def execute_plan(self, plan: PlannedWorkflow):
         """
+        Main method to interact with WorkflowExecutor.
         A plan is basically a list of steps, each step has fields:
         message, intent, action_request and control
 
@@ -41,41 +45,36 @@ class WorkflowAgent(BaseAgent[PlannedWorkflow, ExecutedWorkflow]):
 
         for step in plan:
             step: PlannedWorkflow.PlanningSteps
-            execution_step = ExecutedWorkflow.ExecutionSteps()
 
             self.logger.debug(f"Message: {step.message}")
             self.logger.debug(f"Control: {step.control}")
 
-            execution_step.message = step.message
-            execution_step.intent = step.intent
-
-            execution_step.action_request = step.action_request
-            execution_step.control = step.control
-
             action_output: ActionOutput
 
+            # we are iterating over arguments for the action request
             for arg in step.action_request.action_arguments:
-
+                # if we find any references in the argument using the regex
                 if self.ref_pattern.findall(arg.value):
+                    # replace the reference with its value
                     arg.value = replace_refs(arg.value)
 
+            # run the action
             action_output = run(step.action_request)
-
-            execution_step.action_output = action_output
-            context.add_step(execution_step)
-
             if action_output is not None:
                 self.logger.debug("Successfully ran the action.")
 
+            execution_step = ExecutedWorkflow.ExecutionSteps(
+                message = step.message,
+                intent = step.intent,
+                action_request = step.action_request,
+                action_output = action_output,
+                control = step.control
+            )
+
+            reflected = self.reflector.execute(execution_step)
+            execution_step.reflection = reflected
+
+            context.add_step(execution_step)
+
+        print(context.model_dump_json(indent=4))
         return context
-
-    def execute(self, task: str):
-        plan = self._interact(task)
-        print(plan)
-
-        if plan is None:
-            self.logger.error("API error incurred.")
-            raise Exception("API error incurred.")
-
-        executed = self.execute_plan(plan)
-        return executed

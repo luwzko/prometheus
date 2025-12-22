@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 
 from prometheus.data_models.action import ActionOutput, ActionRequest
+from prometheus.data_models.agent.subagent.reflected import Reflection
 
 class ControlData(BaseModel):
     """
@@ -44,6 +45,7 @@ class ExecutedWorkflow(BaseModel):
         action_output: Optional[ActionOutput] = None
 
         control: Optional[ControlData] = None
+        reflection: Optional[Reflection] = None
 
     executed: Optional[Dict[str, ExecutionSteps]] = Field(default_factory=dict)
 

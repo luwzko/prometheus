@@ -20,7 +20,7 @@ def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond")
         "type": "function",
         "function": {
             "name": tool_name,
-            "description": f"Respond using the {response_model.__name__} format",
+            "description": f"Respond using the {response_model.__name__} format. Arguments must be valid JSON. Do not use XML, angle brackets or <parameter> tags.",
             "parameters": response_model.model_json_schema()
         }
     }
@@ -106,6 +106,7 @@ class AgentPrompt:
 
         if isinstance(user_message, UserInput):
             messages.append(user_message.build_message_block())
+
         else:
             messages.append(generate_message("user", user_message))
 

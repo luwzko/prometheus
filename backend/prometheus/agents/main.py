@@ -17,11 +17,10 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
         self._config: MainConfig
         self.prometheus_config = prometheus_config
 
-        self.workflow = WorkflowAgent(self.prometheus_config.workflow)
+        self.workflow = WorkflowAgent(self.logger, self.prometheus_config.workflow, self.prometheus_config.reflector, self.prometheus_config.analyzer)
         self.reflector = ReflectorAgent(self.prometheus_config.reflector)
 
         self.action_manager = ActionManager(self.prometheus_config.action_manager)
-
         self.conversation_history = ConversationHistory[UserInput, PrometheusOutput](
             self.logger,
             UserInput,
@@ -29,13 +28,9 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
             save_file = f"history.jsonl"
         )
 
-
     def execute(self, user_input: UserInput) -> PrometheusOutput | None:
         validated = self._interact(user_input, self.conversation_history.get_context_msg())
-
-        if validated is None:
-            self.logger.error("API error incurred.")
-            raise Exception("API error incurred.")
+        print(validated)
 
         prometheus_output: PrometheusOutput = PrometheusOutput()
 
@@ -51,10 +46,10 @@ class Prometheus(BaseAgent[PrometheusResponse, PrometheusOutput]):
 
             case "plan":
                 prometheus_output.task = validated.task
-                # plan and execute
-                executor_context = self.workflow.execute(validated.task)
+                # pass task + analyzed plan -> workflow -> plan and execute
+                executed = self.workflow.execute(user_input.message, validated.task)
                 # add all generated context to the prometheus output
-                prometheus_output.executed = executor_context
+                prometheus_output.executed = executed
 
             case _:
                 self.logger.warning("Prometheus hallucinated response mode.")

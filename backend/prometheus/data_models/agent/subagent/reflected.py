@@ -5,7 +5,7 @@ class Reflection(BaseModel):
     """
     Reflection is a class which defines Reflector agent output.
     It has 2 fields:
-        - Summary is what the workflow agent executed and tldr.
+        - Summary is TLDR of the context that was passed.
         - While control is if something unexpected happened while executing.
             - recommended_action:
                 retry - retries the current action / plan

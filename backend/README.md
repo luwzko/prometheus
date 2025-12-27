@@ -34,8 +34,8 @@ Additional agents include **Think** and **Code** agents for action-specific proc
 
 3. **Run**:
    - **Docker**: `docker build -t prometheus . && docker run -p 8000:8000 prometheus`
-   - **CLI**: `python main.py`
-   - **API**: `python main.py --api` (runs on `http://0.0.0.0:8000`)
+   - **CLI**: `python main.py --cli`
+   - **API**: `python main.py` (runs on `http://0.0.0.0:8000`)
 
 ## Tech Stack
 
@@ -44,4 +44,4 @@ Additional agents include **Think** and **Code** agents for action-specific proc
 - Pydantic
 - Requests
 
-No external agent libraries (LangChain, OpenAI SDK, etc.) — built using only `requests` for API calls and `fastapi` for the web interface.
+No external agent libraries (LangChain, OpenAI SDK, etc.) â€” built using only `requests` for API calls and `fastapi` for the web interface.

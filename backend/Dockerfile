@@ -12,4 +12,4 @@ COPY . .
 EXPOSE 8000
 
 # Adjust this to match your actual entry point
-CMD ["python", "main.py", "--api"]
+CMD ["python", "main.py"]

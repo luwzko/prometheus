@@ -9,5 +9,5 @@ class Analyzer(BaseAgent[Analysis, Analysis]):
 
     def execute(self, task: str | None):
         analysis: Analysis = self._interact(task)
-        print("analysis=",analysis)
+
         return analysis

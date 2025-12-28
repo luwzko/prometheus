@@ -135,7 +135,7 @@ class PrometheusConfig(BaseModel):
             merged = global_model_config.model_dump()
             merged.update(agent_config.model_config_)
 
-            return ModelConfig(**merged)
+            return ModelConfig(api_key = global_model_config.api_key, base_url = global_model_config.base_url, **merged)
 
         raise ValueError(f"Invalid model_config_ type: {type(agent_config.model_config_)}")
 

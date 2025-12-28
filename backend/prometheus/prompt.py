@@ -76,6 +76,8 @@ class AgentPrompt:
 
         self._response_format["tools"] = [_generate_tool_schema(self._response_model)]
 
+        print(json.dumps(self._response_format, indent=4))
+
         self._agent_config.load_response_format(self._response_format)
 
     def _add_details(self):

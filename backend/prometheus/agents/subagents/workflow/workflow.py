@@ -16,6 +16,7 @@ class WorkflowAgent:
     Then those broken down tasks get executed and fed into executor context
     """
     def __init__(self, logger: logging.Logger, planner_config: AgentConfig, reflector_config: AgentConfig, analyzer_config: AgentConfig):
+
         self.planner_config = planner_config
         self.reflector_config = reflector_config
         self.analyzer_config = analyzer_config
@@ -28,7 +29,7 @@ class WorkflowAgent:
         self.analyzer = Analyzer(self.analyzer_config)
 
     def execute(self, message: str, task: str):
-        analysis: Analysis = self.analyzer.execute(f"message=`{message}`, task=`{task}`")
+        analysis: Analysis = self.analyzer.execute(f"user_message=`{message}`, task=`{task}`")
 
         # first generate plan
         plan: PlannedWorkflow = self.planner.execute(analysis)

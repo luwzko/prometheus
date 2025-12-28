@@ -61,10 +61,10 @@ A custom AI agent orchestration system with a modern web interface. Prometheus i
 4. **Run the backend**
    ```bash
    # API mode (recommended)
-   python main.py --api
+   python main.py
    
    # CLI mode
-   python main.py
+   python main.py --cli
    ```
    
    The API will be available at `http://localhost:8000`

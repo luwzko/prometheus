@@ -3,7 +3,7 @@
         "name": "anthropic/claude-3.7-sonnet:thinking",
         "base_url": "https://openrouter.ai/api/v1/chat/completions",
         "max_tokens": 4096,
-        "temperature": 0.0
+        "temperature": 0.2
     },
 
     "prometheus": {

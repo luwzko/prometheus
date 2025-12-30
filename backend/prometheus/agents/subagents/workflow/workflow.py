@@ -29,9 +29,10 @@ class WorkflowAgent:
         self.analyzer = Analyzer(self.analyzer_config)
 
     def execute(self, message: str, task: str):
+        # generate analysis
         analysis: Analysis = self.analyzer.execute(f"user_message=`{message}`, task=`{task}`")
 
-        # first generate plan
+        # use the analysis to generate a planned workflow
         plan: PlannedWorkflow = self.planner.execute(analysis)
 
         # then execute it

@@ -8,7 +8,6 @@ import logging
 
 from prometheus.data_models.shared import UserInput
 
-
 def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond"):
     """
     Generates the tool schema so the model knows how to respond.
@@ -20,7 +19,7 @@ def _generate_tool_schema(response_model: BaseModel, tool_name: str = "respond")
         "type": "function",
         "function": {
             "name": tool_name,
-            "description": f"Respond using the {response_model.__name__} format. Arguments must be valid JSON. Do not use XML, angle brackets or <parameter> tags.",
+            "description": f"MUST be used for every response. Provide valid JSON matching the {response_model.__name__} schema. Arguments must be valid JSON. Do not use XML, angle brackets or <parameter> tags.",
             "parameters": response_model.model_json_schema()
         }
     }
@@ -43,7 +42,6 @@ class AgentPrompt:
         self.variables = {
             "{action_data}": get_action_details()
         }
-
         self._add_details()
         self._response_format =\
             {
@@ -75,8 +73,6 @@ class AgentPrompt:
         self._response_format["temperature"] = self._agent_config.model_config_.temperature
 
         self._response_format["tools"] = [_generate_tool_schema(self._response_model)]
-
-        print(json.dumps(self._response_format, indent=4))
 
         self._agent_config.load_response_format(self._response_format)
 

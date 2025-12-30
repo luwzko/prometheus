@@ -17,7 +17,7 @@ class Action(BaseModel):
         arg_type: str | None = None
 
         def __str__(self):
-            return f"{self.arg_name}: {self.arg_type}"
+            return f"`{self.arg_name}` ({self.arg_type})"
 
     name: str | None = None
     description: str | None = None
@@ -27,13 +27,14 @@ class Action(BaseModel):
     def __str__(self):
         str_repr =\
         (
-            f"Name: {self.name}\n"
-            f"Description: {self.description}\n"
-            "Arguments:\n"
+            f"**{self.name}** - {self.description}\n"
+            f"- Arguments: "
         )
         for arg in self.arguments_sig:
             str_repr += str(arg)
-            str_repr += "\n"
+            str_repr += " "
+
+        str_repr += "\n"
 
         return str_repr
 

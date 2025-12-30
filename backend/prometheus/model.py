@@ -43,7 +43,7 @@ class Model:
         # Make API call
         response = self._interact(data)
         response_json = json.loads(response.text)
-        print(response_json)
+
         # Validate response structure
         api_response = ModelResponse.model_validate(response_json)
 

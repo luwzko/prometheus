@@ -11,9 +11,9 @@ class ControlData(BaseModel):
     depends_on - IDs of steps which this specific step depends on
     ref_output_as - reference output as, variable name of current steps output
     """
-    id: Optional[str] = None
+    id: str
     depends_on: Optional[List[str]] = None
-    ref_output_as: Optional[str] = None
+    ref_output_as: str = "step"
 
 class PlannedWorkflow(BaseModel):
     """

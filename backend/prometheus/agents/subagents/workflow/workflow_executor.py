@@ -45,7 +45,7 @@ class WorkflowExecutor:
 
         for step in plan:
             step: PlannedWorkflow.PlanningSteps
-
+            print("STEP:",step)
             self.logger.debug(f"Message: {step.message}")
             self.logger.debug(f"Control: {step.control}")
 
